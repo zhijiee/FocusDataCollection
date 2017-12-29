@@ -5,18 +5,12 @@
 
 package com.zhijie.focus;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -342,32 +336,32 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
      */
     private void ensurePermissions() {
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
-            // the user to grant us the permission.
-
-            DialogInterface.OnClickListener buttonListener =
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            ActivityCompat.requestPermissions(Activity_RecordData_guide.this,
-                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                    0);
-                        }
-                    };
-
-            // This is the context dialog which explains to the user the reason we are requesting
-            // this permission.  When the user presses the positive (I Understand) button, the
-            // standard Android permission dialog will be displayed (as defined in the button
-            // listener above).
-            AlertDialog introDialog = new AlertDialog.Builder(this)
-                    .setTitle(R.string.permission_dialog_title)
-                    .setMessage(R.string.permission_dialog_description)
-                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
-                    .create();
-            introDialog.show();
-        }
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
+//            // the user to grant us the permission.
+//
+//            DialogInterface.OnClickListener buttonListener =
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                            ActivityCompat.requestPermissions(Activity_RecordData_guide.this,
+//                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+//                                    0);
+//                        }
+//                    };
+//
+//            // This is the context dialog which explains to the user the reason we are requesting
+//            // this permission.  When the user presses the positive (I Understand) button, the
+//            // standard Android permission dialog will be displayed (as defined in the button
+//            // listener above).
+//            AlertDialog introDialog = new AlertDialog.Builder(this)
+//                    .setTitle(R.string.permission_dialog_title)
+//                    .setMessage(R.string.permission_dialog_description)
+//                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
+//                    .create();
+//            introDialog.show();
+//        }
     }
 
     /**

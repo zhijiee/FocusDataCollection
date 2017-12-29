@@ -23,5 +23,7 @@
     <string name="permission_dialog_description">Muse needs a few permissions to work properly. On the next screens, tap "Allow" to proceed. If you deny, Muse will not work properly until you go into your Android settings and allow.</string>
     <string name="permission_dialog_understand">I Understand</string>
 
+    <string name="museconnection_title">Choose your Muse Device to use!</string>
+
     <string name="record_data"> Record Data </string>
 </resources>

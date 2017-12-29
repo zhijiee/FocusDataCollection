@@ -9,6 +9,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -96,25 +97,36 @@ public class Activity_RecordData extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.recorddata);
 
         // Load the Muse Library
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
 
+        WeakReference<Activity_RecordData> weakActivity =
+                new WeakReference<Activity_RecordData>(this);
+        connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
+        datalistener = new DataListener(weakActivity); //Get data from EEG
+        manager.setMuseListener(new MuseL(weakActivity)); //Update Muselist when new muse changes
+        fileThread.start();
+
+        initUI();
+
+        // TODO: Connect to Muse Device
+        Intent i = new Intent(this, Activity_Connect_Muse.class);
+        startActivity(i);
+
+
         // Check for permission
         ensurePermissions();
 
-        WeakReference<Activity_RecordData> weakActivity =
-                new WeakReference<Activity_RecordData>(this);
 
-        connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
 
-        datalistener = new DataListener(weakActivity); //Get data from EEG
 
-        manager.setMuseListener(new MuseL(weakActivity)); //Update spinner when new muse changes
+    }
 
-        fileThread.start();
+    private void initUI() {
+        setContentView(R.layout.recorddata);
+
 
     }
 
@@ -308,7 +320,6 @@ public class Activity_RecordData extends Activity {
             activityRef.get().museListChanged();
         }
 
-        ;
     }
 
     class ConnectionListener extends MuseConnectionListener {
