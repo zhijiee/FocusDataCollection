@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.choosemuse.libmuse.Accelerometer;
 import com.choosemuse.libmuse.ConnectionState;
@@ -29,11 +30,14 @@ import com.choosemuse.libmuse.MuseConnectionListener;
 import com.choosemuse.libmuse.MuseConnectionPacket;
 import com.choosemuse.libmuse.MuseDataListener;
 import com.choosemuse.libmuse.MuseDataPacket;
+import com.choosemuse.libmuse.MuseDataPacketType;
 import com.choosemuse.libmuse.MuseFileFactory;
 import com.choosemuse.libmuse.MuseFileWriter;
 import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
 import com.choosemuse.libmuse.MuseVersion;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -47,48 +51,14 @@ public class Activity_RecordData extends Activity {
     private final Handler handler = new Handler();
     private final AtomicReference<Handler> fileHandler = new AtomicReference<>();
     private final AtomicReference<MuseFileWriter> fileWriter = new AtomicReference<>();
-    /**
-     * Data comes in from the headband at a very fast rate; 220Hz, 256Hz or 500Hz,
-     * depending on the type of headband and the preset configuration.  We buffer the
-     * data that is read until we can update the UI.
-     * <p>
-     * The stale flags indicate whether or not new data has been received and the buffers
-     * hold the values of the last data packet received.  We are displaying the EEG, ALPHA_RELATIVE
-     * and ACCELEROMETER values in this example.
-     * <p>
-     * Note: the array lengths of the buffers are taken from the comments in
-     * MuseDataPacketType, which specify 3 values for accelerometer and 6
-     * values for EEG and EEG-derived packets.
-     */
+
     private final double[] eegBuffer = new double[6];
     private final double[] alphaBuffer = new double[6];
     private final double[] accelBuffer = new double[3];
-    /**
-     * We don't want to block the UI thread while we write to a file, so the file
-     * writing is moved to a separate thread.
-     */
-    private final Thread fileThread = new Thread() {
-        @Override
-        public void run() {
-            Looper.prepare();
-            fileHandler.set(new Handler());
-            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-            final File file = new File(dir, "new_muse_file.muse");
-            // MuseFileWriter will append to an existing file.
-            // In this case, we want to start fresh so the file
-            // if it exists.
-            if (file.exists()) {
-                file.delete();
-            }
-            Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
-            fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
-            Looper.loop();
-        }
-    };
+
     private MuseManagerAndroid manager;
-    // Headband Connection Status
     private ConnectionListener connectionListener; //Headband connection Status
-    private DataListener datalistener;
+    private DataListener dataListener; // Receive packets from connected band
     private Muse muse;
     private boolean eegStale;
     private boolean alphaStale;
@@ -105,22 +75,17 @@ public class Activity_RecordData extends Activity {
         WeakReference<Activity_RecordData> weakActivity =
                 new WeakReference<Activity_RecordData>(this);
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
-        datalistener = new DataListener(weakActivity); //Get data from EEG
-        manager.setMuseListener(new MuseL(weakActivity)); //Update Muselist when new muse changes
+        dataListener = new DataListener(weakActivity); //Get data from EEG
         fileThread.start();
 
         initUI();
 
-        // TODO: Connect to Muse Device
-        Intent i = new Intent(this, Activity_Connect_Muse.class);
-        startActivity(i);
-
-
         // Check for permission
         ensurePermissions();
 
-
-
+        Intent i = new Intent(this, Activity_Connect_Muse.class);
+        //startActivity(i);
+        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
 
     }
 
@@ -159,6 +124,55 @@ public class Activity_RecordData extends Activity {
             introDialog.show();
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == R.integer.SELECT_MUSE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                String gson_muse = data.getStringExtra("muse");
+                Log.i(TAG, "gson_muse:" + gson_muse);
+
+                GsonBuilder gb = new GsonBuilder();
+                gb.registerTypeAdapter(Muse.class, new Abstract_Muse_Adapter_GSON());
+                Muse muse = gb.create().fromJson(gson_muse, Muse.class);
+
+//                muse.unregisterAllListeners();
+//                muse.registerConnectionListener(connectionListener);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+//
+//                // Initiate a connection to the headband and stream the data asynchronously.
+//                muse.runAsynchronously();
+            }
+        }
+    }
+    /**
+     * We don't want to block the UI thread while we write to a file, so the file
+     * writing is moved to a separate thread.
+     */
+    private final Thread fileThread = new Thread() {
+        @Override
+        public void run() {
+            Looper.prepare();
+            fileHandler.set(new Handler());
+            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            final File file = new File(dir, "new_muse_file.muse");
+            // MuseFileWriter will append to an existing file.
+            // In this case, we want to start fresh so the file
+            // if it exists.
+            if (file.exists()) {
+                file.delete();
+            }
+            Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
+            fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
+            Looper.loop();
+        }
+    };
 
     /**
      * You will receive a callback to this method each time there is a change to the
@@ -208,13 +222,6 @@ public class Activity_RecordData extends Activity {
         }
     }
 
-    public void museListChanged() {
-        final List<Muse> list = manager.getMuses();
-//        spinnerAdapter.clear();
-//        for (Muse m : list) {
-//            spinnerAdapter.add(m.getName() + " - " + m.getMacAddress());
-//        }
-    }
 
     /**
      * You will receive a callback to this method each time the headband sends a MuseDataPacket
@@ -306,20 +313,6 @@ public class Activity_RecordData extends Activity {
                 }
             });
         }
-    }
-
-    class MuseL extends MuseListener {
-        final WeakReference<Activity_RecordData> activityRef;
-
-        MuseL(final WeakReference<Activity_RecordData> activityRef) {
-            this.activityRef = activityRef;
-        }
-
-        @Override
-        public void museListChanged() {
-            activityRef.get().museListChanged();
-        }
-
     }
 
     class ConnectionListener extends MuseConnectionListener {

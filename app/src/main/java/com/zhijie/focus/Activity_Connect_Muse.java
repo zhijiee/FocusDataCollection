@@ -15,8 +15,12 @@ import com.choosemuse.libmuse.Muse;
 import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Activity_Connect_Muse extends Activity {
@@ -34,14 +38,17 @@ public class Activity_Connect_Muse extends Activity {
 
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
+
+        // TODO: Check Bluetooth permission
+        // TODO: Turn on Bluetooth
         WeakReference<Activity_Connect_Muse> weakActivity =
                 new WeakReference<>(this);
         manager.setMuseListener(new Activity_Connect_Muse.MuseL(weakActivity));
-
         manager.stopListening();
         manager.startListening();
 
         initUI();
+
 
 
     }
@@ -73,22 +80,29 @@ public class Activity_Connect_Muse extends Activity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-
-                // Todo: Return back to the original Activity.
+                manager.stopListening(); // Stop listening
                 List<Muse> availableMuse = manager.getMuses();
+                Intent returnIntent = new Intent();
+
                 if (availableMuse.size() < 1) {
                     Log.d(TAG, "No available muse to connect to!");
+                    setResult(RESULT_CANCELED);
                 } else {
 
-                    Toast.makeText(getApplicationContext(),
-                            "Click ListItem Number " + position + "Muse: " + availableMuse.get(position), Toast.LENGTH_LONG)
-                            .show();
+                    Gson g = ;
 
-                    Gson gson = new Gson();
 
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("muse", availableMuse.get(position));
+                    Muse muse = availableMuse.get(position);
+
+
+
+
+//                    Log.i(TAG, "gson_muse:" + gson_muse);
+//                    returnIntent.putExtra("muse", gson_muse);
+
+                    setResult(RESULT_OK, returnIntent);
                 }
+                finish(); //return to previous activity with selected muse device
             }
         });
 
