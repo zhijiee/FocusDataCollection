@@ -84,7 +84,6 @@ public class Activity_RecordData extends Activity {
         ensurePermissions();
 
         Intent i = new Intent(this, Activity_Connect_Muse.class);
-        //startActivity(i);
         startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
 
     }
@@ -130,24 +129,24 @@ public class Activity_RecordData extends Activity {
         // Check which request we're responding to
         if (requestCode == R.integer.SELECT_MUSE_REQUEST) {
             if (resultCode == RESULT_OK) {
-                String gson_muse = data.getStringExtra("muse");
-                Log.i(TAG, "gson_muse:" + gson_muse);
+                int position = data.getIntExtra("pos", 0);
+                Log.d(TAG, "Pos:" + position);
+                List<Muse> availableMuse = manager.getMuses();
+                muse = availableMuse.get(position);
 
-                GsonBuilder gb = new GsonBuilder();
-                gb.registerTypeAdapter(Muse.class, new Abstract_Muse_Adapter_GSON());
-                Muse muse = gb.create().fromJson(gson_muse, Muse.class);
+                muse.unregisterAllListeners();
+                muse.registerConnectionListener(connectionListener);
+                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
 
-//                muse.unregisterAllListeners();
-//                muse.registerConnectionListener(connectionListener);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
-//
-//                // Initiate a connection to the headband and stream the data asynchronously.
-//                muse.runAsynchronously();
+                // Initiate a connection to the headband and stream the data asynchronously.
+                muse.runAsynchronously();
+
+                //Todo: refresh UI
             }
         }
     }
@@ -194,8 +193,8 @@ public class Activity_RecordData extends Activity {
             @Override
             public void run() {
 
-                final TextView statusText = (TextView) findViewById(R.id.con_status);
-                statusText.setText(status);
+//                final TextView statusText = (TextView) findViewById(R.id.con_status);
+//                statusText.setText(status);
 
                 final MuseVersion museVersion = muse.getMuseVersion();
                 final TextView museVersionText = (TextView) findViewById(R.id.version);

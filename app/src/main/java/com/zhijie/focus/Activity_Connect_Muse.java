@@ -63,14 +63,6 @@ public class Activity_Connect_Muse extends Activity {
             }
         });
 
-//        Button select_muse = findViewById(R.id.select_muse);
-//        select_muse.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                //Return back
-//                finish();
-//            }
-//        });
-
         ListView lv = findViewById(R.id.museList);
         listviewAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         lv.setAdapter(listviewAdapter);
@@ -88,19 +80,10 @@ public class Activity_Connect_Muse extends Activity {
                     Log.d(TAG, "No available muse to connect to!");
                     setResult(RESULT_CANCELED);
                 } else {
-
-                    Gson g = ;
-
-
-                    Muse muse = availableMuse.get(position);
-
-
-
-
-//                    Log.i(TAG, "gson_muse:" + gson_muse);
-//                    returnIntent.putExtra("muse", gson_muse);
-
+                    returnIntent.putExtra("pos", position);
+                    Log.d(TAG, "pos:" + position);
                     setResult(RESULT_OK, returnIntent);
+
                 }
                 finish(); //return to previous activity with selected muse device
             }
