@@ -8,6 +8,7 @@ package com.zhijie.focus;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,19 +34,19 @@ import com.choosemuse.libmuse.MuseDataPacket;
 import com.choosemuse.libmuse.MuseDataPacketType;
 import com.choosemuse.libmuse.MuseFileFactory;
 import com.choosemuse.libmuse.MuseFileWriter;
-import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
 import com.choosemuse.libmuse.MuseVersion;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-public class Activity_RecordData extends Activity {
+public class Activity_Record_Data extends Activity {
 
     private final String TAG = "TestLibMuseAndroid";
     private final Handler handler = new Handler();
@@ -63,17 +64,19 @@ public class Activity_RecordData extends Activity {
     private boolean eegStale;
     private boolean alphaStale;
     private boolean accelStale;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        context = this;
         // Load the Muse Library
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
 
-        WeakReference<Activity_RecordData> weakActivity =
-                new WeakReference<Activity_RecordData>(this);
+        WeakReference<Activity_Record_Data> weakActivity =
+                new WeakReference<Activity_Record_Data>(this);
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
         fileThread.start();
@@ -89,7 +92,7 @@ public class Activity_RecordData extends Activity {
     }
 
     private void initUI() {
-        setContentView(R.layout.recorddata);
+        setContentView(R.layout.record_data);
 
 
     }
@@ -105,7 +108,7 @@ public class Activity_RecordData extends Activity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            ActivityCompat.requestPermissions(Activity_RecordData.this,
+                            ActivityCompat.requestPermissions(Activity_Record_Data.this,
                                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                                     0);
                         }
@@ -146,10 +149,29 @@ public class Activity_RecordData extends Activity {
                 // Initiate a connection to the headband and stream the data asynchronously.
                 muse.runAsynchronously();
 
-                //Todo: refresh UI
+                handler.post(tickUi);
             }
         }
     }
+
+    private final Runnable tickUi = new Runnable() {
+        @Override
+        public void run() {
+            if (eegStale) {
+                TextView tp9 = (TextView) findViewById(R.id.eeg_tp9);
+                TextView fp1 = (TextView) findViewById(R.id.eeg_af7);
+                TextView fp2 = (TextView) findViewById(R.id.eeg_af8);
+                TextView tp10 = (TextView) findViewById(R.id.eeg_tp10);
+                tp9.setText(String.format("%6.2f", eegBuffer[0]));
+                fp1.setText(String.format("%6.2f", eegBuffer[1]));
+                fp2.setText(String.format("%6.2f", eegBuffer[2]));
+                tp10.setText(String.format("%6.2f", eegBuffer[3]));
+
+            }
+            handler.postDelayed(tickUi, 1000 / 10); // update 10 times per second
+        }
+    };
+
     /**
      * We don't want to block the UI thread while we write to a file, so the file
      * writing is moved to a separate thread.
@@ -157,10 +179,14 @@ public class Activity_RecordData extends Activity {
     private final Thread fileThread = new Thread() {
         @Override
         public void run() {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
+            Date now = new Date();
+            String fileName = formatter.format(now) + ".muse";
+
             Looper.prepare();
             fileHandler.set(new Handler());
             final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-            final File file = new File(dir, "new_muse_file.muse");
+            final File file = new File(dir, fileName);
             // MuseFileWriter will append to an existing file.
             // In this case, we want to start fresh so the file
             // if it exists.
@@ -185,7 +211,7 @@ public class Activity_RecordData extends Activity {
         final ConnectionState current = p.getCurrentConnectionState();
 
         // Format a message to show the change of connection state in the UI.
-        final String status = p.getPreviousConnectionState() + " -> " + current;
+        final String status = current.toString();
         Log.i(TAG, status);
 
         // Update the UI with the change in connection state.
@@ -193,8 +219,8 @@ public class Activity_RecordData extends Activity {
             @Override
             public void run() {
 
-//                final TextView statusText = (TextView) findViewById(R.id.con_status);
-//                statusText.setText(status);
+                final TextView statusText = (TextView) findViewById(R.id.con_status);
+                statusText.setText(status);
 
                 final MuseVersion museVersion = muse.getMuseVersion();
                 final TextView museVersionText = (TextView) findViewById(R.id.version);
@@ -205,9 +231,9 @@ public class Activity_RecordData extends Activity {
                     final String version = museVersion.getFirmwareType() + " - "
                             + museVersion.getFirmwareVersion() + " - "
                             + museVersion.getProtocolVersion();
-                    museVersionText.setText(version);
+//                    museVersionText.setText(version);
                 } else {
-                    museVersionText.setText(R.string.undefined);
+//                    museVersionText.setText(R.string.undefined);
                 }
             }
         });
@@ -314,10 +340,18 @@ public class Activity_RecordData extends Activity {
         }
     }
 
-    class ConnectionListener extends MuseConnectionListener {
-        final WeakReference<Activity_RecordData> activityRef;
+    @Override
+    public void onBackPressed(){
+        Toast.makeText(this,"back pressed", Toast.LENGTH_SHORT).show();
+        if (muse != null)
+            muse.disconnect();
+        finish();
+    }
 
-        ConnectionListener(final WeakReference<Activity_RecordData> activityRef) {
+    class ConnectionListener extends MuseConnectionListener {
+        final WeakReference<Activity_Record_Data> activityRef;
+
+        ConnectionListener(final WeakReference<Activity_Record_Data> activityRef) {
             this.activityRef = activityRef;
         }
 
@@ -328,9 +362,9 @@ public class Activity_RecordData extends Activity {
     }
 
     class DataListener extends MuseDataListener {
-        final WeakReference<Activity_RecordData> activityRef;
+        final WeakReference<Activity_Record_Data> activityRef;
 
-        DataListener(final WeakReference<Activity_RecordData> activityRef) {
+        DataListener(final WeakReference<Activity_Record_Data> activityRef) {
             this.activityRef = activityRef;
         }
 

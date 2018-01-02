@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         if (v.getId() == R.id.refresh) {
             Intent myIntent = new Intent(MainActivity.this,
-                    Activity_RecordData.class);
+                    Activity_Record_Data.class);
             startActivity(myIntent);
         }
 

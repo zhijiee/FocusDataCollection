@@ -505,7 +505,7 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
      * Initializes the UI of the example application.
      */
     private void initUI() {
-        setContentView(R.layout.recorddata);
+        setContentView(R.layout.record_data);
         Button refreshButton = (Button) findViewById(R.id.refresh);
         refreshButton.setOnClickListener(this);
         Button connectButton = (Button) findViewById(R.id.connect);
