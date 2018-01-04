@@ -1,26 +1,26 @@
 package com.zhijie.focus;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.choosemuse.libmuse.Muse;
 import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Activity_Connect_Muse extends Activity {
@@ -39,14 +39,15 @@ public class Activity_Connect_Muse extends Activity {
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
 
-        // TODO: Check Bluetooth permission
-        // TODO: Turn on Bluetooth
         WeakReference<Activity_Connect_Muse> weakActivity =
                 new WeakReference<>(this);
         manager.setMuseListener(new Activity_Connect_Muse.MuseL(weakActivity));
         manager.stopListening();
         manager.startListening();
 
+        // TODO: Check Bluetooth permission
+        // TODO: Turn on Bluetooth
+        ensurePermissions();
         initUI();
 
 
@@ -89,6 +90,36 @@ public class Activity_Connect_Muse extends Activity {
             }
         });
 
+    }
+
+    private void ensurePermissions() {
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
+            // the user to grant us the permission.
+
+            DialogInterface.OnClickListener buttonListener =
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            ActivityCompat.requestPermissions(Activity_Connect_Muse.this,
+                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                    0);
+                        }
+                    };
+
+            // This is the context dialog which explains to the user the reason we are requesting
+            // this permission.  When the user presses the positive (I Understand) button, the
+            // standard Android permission dialog will be displayed (as defined in the button
+            // listener above).
+            AlertDialog introDialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.permission_dialog_title)
+                    .setMessage(R.string.permission_dialog_description)
+                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
+                    .create();
+            introDialog.show();
+        }
     }
 
     public void museListChanged() {

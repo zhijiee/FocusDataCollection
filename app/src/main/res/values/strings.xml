@@ -26,4 +26,7 @@
     <string name="museconnection_title">Choose your Muse Device to use!</string>
 
     <string name="record_data"> Record Data </string>
+
+    <string name="start_rec"> Start Recording </string>
+    <string name="stop_rec"> Stop Recording </string>
 </resources>

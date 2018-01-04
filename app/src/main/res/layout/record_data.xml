@@ -16,7 +16,8 @@
         android:layout_below="@+id/eeg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:id="@+id/linearLayout">
 
         <TextView
             android:id="@+id/eeg_tp9"
@@ -61,31 +62,40 @@
         android:id="@+id/start_recording"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Recording"
-        android:layout_alignParentBottom="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/start_recording"
-        android:layout_toRightOf="@+id/start_recording"
-        android:text="End Recording" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/start_rec" />
+
+    <!--<Button-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_toEndOf="@+id/start_recording"-->
+    <!--android:layout_toRightOf="@+id/start_recording"-->
+    <!--android:text="End Recording" />-->
 
     <TextView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status:"
-        android:layout_above="@id/start_recording"/>
+        android:text="Muse:"
+        android:layout_toLeftOf="@id/con_status" />
 
     <TextView
         android:id="@+id/con_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/start_recording"
-        android:layout_toRightOf="@id/status"
-        />
+        android:layout_alignParentRight="true"
+        android:text="Disconnected" />
+
+    <TextView
+        android:id="@+id/instr_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
+        android:textSize="25dp"
+        android:text="Instruction" />
 
 
 </RelativeLayout>
