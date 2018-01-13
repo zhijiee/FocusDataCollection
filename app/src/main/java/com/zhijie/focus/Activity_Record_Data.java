@@ -162,6 +162,8 @@ public class Activity_Record_Data extends Activity {
         public void run() {
             // todo: Create the sequence of events for the users to perform to record the data
             instr_textview.setText("Instructions to tell users what to do! TODO");
+
+
         }
     };
 
@@ -315,6 +317,10 @@ public class Activity_Record_Data extends Activity {
 
             start_record_btn.setEnabled(false);
             start_record_btn.setText(R.string.start_rec);
+
+            Intent i = new Intent(this, Activity_Connect_Muse.class);
+            startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+
 
         } else if (current == ConnectionState.CONNECTED) {
             start_record_btn.setEnabled(true);

@@ -47,7 +47,7 @@ public class Activity_Connect_Muse extends Activity {
 
         // TODO: Check Bluetooth permission
         // TODO: Turn on Bluetooth
-        ensurePermissions();
+        requestPermission();
         initUI();
 
 
@@ -92,7 +92,8 @@ public class Activity_Connect_Muse extends Activity {
 
     }
 
-    private void ensurePermissions() {
+    private void requestPermission() {
+
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -109,10 +110,10 @@ public class Activity_Connect_Muse extends Activity {
                         }
                     };
 
-            // This is the context dialog which explains to the user the reason we are requesting
-            // this permission.  When the user presses the positive (I Understand) button, the
-            // standard Android permission dialog will be displayed (as defined in the button
-            // listener above).
+//             This is the context dialog which explains to the user the reason we are requesting
+//             this permission.  When the user presses the positive (I Understand) button, the
+//             standard Android permission dialog will be displayed (as defined in the button
+//             listener above).
             AlertDialog introDialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.permission_dialog_title)
                     .setMessage(R.string.permission_dialog_description)

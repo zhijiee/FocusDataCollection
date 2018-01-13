@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/arithmetic_test_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="6dp"
+        android:max="100"
+        android:progress="50"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginEnd="38dp"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="124dp"
+        android:gravity="center"
+        android:text="(5+7)-2"
+        android:textSize="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+    <TextView
+        android:id="@+id/muse_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:text="Muse:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/con_status"
+        app:layout_constraintEnd_toStartOf="@+id/con_status" />
+
+    <TextView
+        android:id="@+id/con_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        android:text="Unknown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/ans6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="6"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
+        app:layout_constraintStart_toEndOf="@+id/ans5" />
+
+    <Button
+        android:id="@+id/ans5"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="36dp"
+        android:text="5"
+        app:layout_constraintTop_toBottomOf="@+id/ans2"
+        tools:layout_editor_absoluteX="173dp" />
+
+    <Button
+        android:id="@+id/ans4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:text="4"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
+        app:layout_constraintEnd_toStartOf="@+id/ans5" />
+
+    <Button
+        android:id="@+id/ans1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:text="1"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
+        app:layout_constraintEnd_toStartOf="@+id/ans2" />
+
+    <Button
+        android:id="@+id/ans3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="3"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
+        app:layout_constraintStart_toEndOf="@+id/ans2" />
+
+    <Button
+        android:id="@+id/ans2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:text="2"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:layout_editor_absoluteX="173dp" />
+
+    <Button
+        android:id="@+id/ans7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:text="7"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
+        app:layout_constraintEnd_toStartOf="@+id/ans8" />
+
+    <Button
+        android:id="@+id/ans9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="9"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
+        app:layout_constraintStart_toEndOf="@+id/ans8" />
+
+    <Button
+        android:id="@+id/ans8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="8"
+        app:layout_constraintTop_toBottomOf="@+id/ans5"
+        tools:layout_editor_absoluteX="173dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <Button
+        android:id="@+id/ans0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="0"
+        app:layout_constraintTop_toBottomOf="@+id/ans8"
+        tools:layout_editor_absoluteX="173dp" />
+</android.support.constraint.ConstraintLayout>
