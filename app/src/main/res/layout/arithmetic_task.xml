@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/arithmetic_test_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -59,7 +58,7 @@
         android:id="@+id/ans6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="36dp"
         android:text="6"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
         app:layout_constraintStart_toEndOf="@+id/ans5" />
@@ -68,10 +67,13 @@
         android:id="@+id/ans5"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginBottom="36dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="5"
-        app:layout_constraintTop_toBottomOf="@+id/ans2"
-        tools:layout_editor_absoluteX="173dp" />
+        app:layout_constraintBottom_toTopOf="@+id/ans8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/ans4"
@@ -95,7 +97,7 @@
         android:id="@+id/ans3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="36dp"
         android:text="3"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
         app:layout_constraintStart_toEndOf="@+id/ans2" />
@@ -104,10 +106,13 @@
         android:id="@+id/ans2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:layout_marginBottom="36dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="2"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="173dp" />
+        app:layout_constraintBottom_toTopOf="@+id/ans5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/ans7"
@@ -122,7 +127,7 @@
         android:id="@+id/ans9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="36dp"
         android:text="9"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
         app:layout_constraintStart_toEndOf="@+id/ans8" />
@@ -131,31 +136,25 @@
         android:id="@+id/ans8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginBottom="36dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="8"
-        app:layout_constraintTop_toBottomOf="@+id/ans5"
-        tools:layout_editor_absoluteX="173dp" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp" />
+        app:layout_constraintBottom_toTopOf="@+id/ans0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" /><!--tools:layout_editor_absoluteX="173dp" -->
+    />
 
     <Button
         android:id="@+id/ans0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="36dp"
         android:text="0"
-        app:layout_constraintTop_toBottomOf="@+id/ans8"
-        tools:layout_editor_absoluteX="173dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+
+        />
+
 </android.support.constraint.ConstraintLayout>

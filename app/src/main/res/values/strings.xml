@@ -31,4 +31,13 @@
     <string name="stop_rec"> Stop Recording </string>
 
     <string name="p1_instr_1"> Please </string>
+
+    <string name="arith_test_instruction">1. 2 Min of Arithmetic Practice\n
+2. 15 Seconds break\n
+3. 2 Min Arithmetic Test\n
+4. 15 Seconds break\n
+5. 2 Min of Relaxtion\n
+6. 15 Seconds break\n
+6. Repeat (3 - 6) 2 more times\n
+    </string>
 </resources>

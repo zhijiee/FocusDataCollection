@@ -6,14 +6,15 @@
 package com.zhijie.focus;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +41,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-
+/*
+    TODO: Create Spinner while connecting
+ */
 public class Activity_Record_Data extends Activity {
 
     private final String TAG = "TestLibMuseAndroid";
@@ -48,163 +51,9 @@ public class Activity_Record_Data extends Activity {
 
     private final AtomicReference<Handler> fileHandler = new AtomicReference<>();
     private final AtomicReference<MuseFileWriter> fileWriter = new AtomicReference<>();
-
-    private Muse muse;
-    private MuseManagerAndroid manager;
-    private DataListener dataListener; // Receive packets from connected band
-    private ConnectionListener connectionListener; //Headband connection Status
-
     private final double[] eegBuffer = new double[6];
     private final double[] alphaBuffer = new double[6];
     private final double[] accelBuffer = new double[3];
-    private boolean eegStale;
-    private boolean alphaStale;
-    private boolean accelStale;
-
-    private Context context;
-    private boolean recording = false;
-    private Button start_record_btn;
-    private TextView instr_textview;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        context = this;
-        // Load the Muse Library
-        manager = MuseManagerAndroid.getInstance();
-        manager.setContext(this);
-
-        // Setup Callback
-        WeakReference<Activity_Record_Data> weakActivity =
-                new WeakReference<Activity_Record_Data>(this);
-        connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
-        dataListener = new DataListener(weakActivity); //Get data from EEG
-
-//        fileThread.start(); // Start File Thread
-
-        initUI(); // Init UI Elements
-
-        // Connect Muse Activity
-        Intent i = new Intent(this, Activity_Connect_Muse.class);
-        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
-
-    }
-
-    private void initFileWriter() {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
-        Date now = new Date();
-        String fileName = formatter.format(now) + ".muse";
-
-        fileHandler.set(new Handler());
-        final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        final File file = new File(dir, fileName);
-        // MuseFileWriter will append to an existing file.
-        // In this case, we want to start fresh so the file
-        // if it exists.
-        if (file.exists()) {
-            file.delete();
-        }
-        Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
-        fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
-    }
-
-    private void initUI() {
-        setContentView(R.layout.record_data);
-
-        instr_textview = findViewById(R.id.instr_tv);
-
-        start_record_btn = findViewById(R.id.start_recording);
-        start_record_btn.setEnabled(false);
-        start_record_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (recording) {
-                    // Stop Recording and save file
-                    saveFile();
-                    recording = false;
-                    start_record_btn.setText(R.string.start_rec);
-
-                } else {
-                    // Start Recording Data
-                    initFileWriter();
-                    fileWriter.get().addAnnotationString(0, "Recording Started");
-                    recording = true;
-                    start_record_btn.setText(R.string.stop_rec);
-                    handler.post(recording_events);
-                }
-            }
-        });
-
-    }
-
-    private final Runnable tickUi = new Runnable() {
-        @Override
-        public void run() {
-            if (eegStale) {
-                TextView tp9 = (TextView) findViewById(R.id.eeg_tp9);
-                TextView fp1 = (TextView) findViewById(R.id.eeg_af7);
-                TextView fp2 = (TextView) findViewById(R.id.eeg_af8);
-                TextView tp10 = (TextView) findViewById(R.id.eeg_tp10);
-                tp9.setText(String.format("%6.2f", eegBuffer[0]));
-                fp1.setText(String.format("%6.2f", eegBuffer[1]));
-                fp2.setText(String.format("%6.2f", eegBuffer[2]));
-                tp10.setText(String.format("%6.2f", eegBuffer[3]));
-
-            }
-            handler.postDelayed(tickUi, 1000 / 10); // update 10 times per second
-        }
-    };
-
-    private Runnable recording_events = new Runnable() {
-        @Override
-        public void run() {
-            // todo: Create the sequence of events for the users to perform to record the data
-            instr_textview.setText("Instructions to tell users what to do! TODO");
-
-
-        }
-    };
-
-    /*
-     *  -------------- Return from startActivityForResult ------------------
-     */
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        // Check which request we're responding to
-        if (requestCode == R.integer.SELECT_MUSE_REQUEST) {
-            if (resultCode == RESULT_OK) {
-
-                int position = data.getIntExtra("pos", 0);
-
-                List<Muse> availableMuse = manager.getMuses();
-                muse = availableMuse.get(position);
-
-                muse.unregisterAllListeners();
-                muse.registerConnectionListener(connectionListener);
-                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
-
-                // Initiate a connection to the headband and stream the data asynchronously.
-                muse.runAsynchronously();
-
-                // Thread to update UI
-                handler.post(tickUi);
-            }
-        }
-    }
-
-    /*
-     * -------------------- Begin File I/O --------------------------
-     */
-
     /**
      * We don't want to block the UI thread while we write to a file, so the file
      * writing is moved to a separate thread.
@@ -232,6 +81,185 @@ public class Activity_Record_Data extends Activity {
             Looper.loop();
         }
     };
+    AlertDialog dialog;
+    private Muse muse;
+    private MuseManagerAndroid manager;
+    private DataListener dataListener; // Receive packets from connected band
+    private ConnectionListener connectionListener; //Headband connection Status
+    private boolean eegStale;
+    private boolean alphaStale;
+    private boolean accelStale;
+    private Context context;
+    private boolean recording = false;
+    private Button start_record_btn;
+    private TextView instr_textview;
+    private Runnable recording_events = new Runnable() {
+        @Override
+        public void run() {
+            // todo: Create the sequence of events for the users to perform to record the data
+            instr_textview.setText("Instructions to tell users what to do! TODO");
+
+
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        context = this;
+        // Load the Muse Library
+        manager = MuseManagerAndroid.getInstance();
+        manager.setContext(this);
+
+        // Setup Callback
+        WeakReference<Activity_Record_Data> weakActivity =
+                new WeakReference<Activity_Record_Data>(this);
+        connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
+        dataListener = new DataListener(weakActivity); //Get data from EEG
+
+//        fileThread.start(); // Start File Thread
+
+
+        // Connect Muse Activity
+        Intent i = new Intent(this, Activity_Connect_Muse.class);
+        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+
+        initUI(); // Init UI Elements
+
+    }
+
+//    private final Runnable tickUi = new Runnable() {
+//        @Override
+//        public void run() {
+//            if (eegStale) {
+//                TextView tp9 = findViewById(R.id.eeg_tp9);
+//                TextView fp1 = findViewById(R.id.eeg_af7);
+//                TextView fp2 = findViewById(R.id.eeg_af8);
+//                TextView tp10 = findViewById(R.id.eeg_tp10);
+//                tp9.setText(String.format("%6.2f", eegBuffer[0]));
+//                fp1.setText(String.format("%6.2f", eegBuffer[1]));
+//                fp2.setText(String.format("%6.2f", eegBuffer[2]));
+//                tp10.setText(String.format("%6.2f", eegBuffer[3]));
+//
+//            }
+//            handler.postDelayed(tickUi, 1000 / 10); // update 10 times per second
+//        }
+//    };
+
+    private void initFileWriter() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
+        Date now = new Date();
+        String fileName = formatter.format(now) + ".muse";
+
+        fileHandler.set(new Handler());
+        final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        final File file = new File(dir, fileName);
+        // MuseFileWriter will append to an existing file.
+        // In this case, we want to start fresh so the file
+        // if it exists.
+        if (file.exists()) {
+            file.delete();
+        }
+        Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
+        fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
+    }
+
+    /*
+     *  -------------- Return from startActivityForResult ------------------
+     */
+
+    private void initUI() {
+        setContentView(R.layout.arithmetic_task);
+
+//        instr_textview = findViewById(R.id.instr_tv);
+
+//        start_record_btn = findViewById(R.id.start_recording);
+//        start_record_btn.setEnabled(false);
+//        start_record_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (recording) {
+//                    // Stop Recording and save file
+//                    saveFile();
+//                    recording = false;
+//                    start_record_btn.setText(R.string.start_rec);
+//
+//                } else {
+//                    // Start Recording Data
+//                    initFileWriter();
+//                    fileWriter.get().addAnnotationString(0, "Recording Started");
+//                    recording = true;
+//                    start_record_btn.setText(R.string.stop_rec);
+//                    handler.post(recording_events);
+//                }
+//            }
+//        });
+
+    }
+
+    private void start_arithmetic_test_dialog() {
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(R.string.arith_test_instruction)
+                .setTitle("Instructions");
+
+
+        builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        dialog = builder.create();
+
+        dialog.show();
+
+        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+                .setEnabled(false);
+
+
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        // Check which request we're responding to
+        if (requestCode == R.integer.SELECT_MUSE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+
+                int position = data.getIntExtra("pos", 0);
+
+                List<Muse> availableMuse = manager.getMuses();
+                muse = availableMuse.get(position);
+                connect_to_muse();
+
+                start_arithmetic_test_dialog();
+                // Thread to update UI
+//                handler.post(tickUi);
+            }
+        }
+    }
+    /*
+     * -------------------- Begin File I/O --------------------------
+     */
+
+    private final void connect_to_muse() {
+        muse.unregisterAllListeners();
+        muse.registerConnectionListener(connectionListener);
+        muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+        muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+        muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+        muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+
+        // Initiate a connection to the headband and stream the data asynchronously.
+        muse.runAsynchronously();
+
+    }
 
     /**
      * Writes the provided MuseDataPacket to the file.  MuseFileWriter knows
@@ -311,19 +339,30 @@ public class Activity_Record_Data extends Activity {
 
 
             // We have disconnected from the headband, so set our cached copy to null.
-            this.muse = null;
+//            this.muse = null;
             android.widget.Toast.makeText
-                    (this, "Muse Disconnected", Toast.LENGTH_SHORT).show();
+                    (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
 
-            start_record_btn.setEnabled(false);
-            start_record_btn.setText(R.string.start_rec);
+            if (muse != null) {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (muse != null)
+                            connect_to_muse();
+                    }
+                }, 1000);
+            }
 
-            Intent i = new Intent(this, Activity_Connect_Muse.class);
-            startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+            //            start_record_btn.setEnabled(false);
+//            start_record_btn.setText(R.string.start_rec);
 
 
         } else if (current == ConnectionState.CONNECTED) {
-            start_record_btn.setEnabled(true);
+//            start_record_btn.setEnabled(true);
+            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setEnabled(true);
+
         }
     }
 
@@ -385,7 +424,7 @@ public class Activity_Record_Data extends Activity {
 
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
 
         // TODO: Prompt dialog to ask if really want to exit
         if (recording) {
@@ -394,6 +433,7 @@ public class Activity_Record_Data extends Activity {
             // Disconnect Muse when returning to previous activity.
             if (muse != null)
                 muse.disconnect();
+            muse = null;
             finish();
         }
 

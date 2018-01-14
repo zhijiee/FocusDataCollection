@@ -45,8 +45,6 @@ public class Activity_Connect_Muse extends Activity {
         manager.stopListening();
         manager.startListening();
 
-        // TODO: Check Bluetooth permission
-        // TODO: Turn on Bluetooth
         requestPermission();
         initUI();
 
