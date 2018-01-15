@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /*
     TODO: Create Spinner while connecting
+    TODO: Better connection animation
  */
 public class Activity_Record_Data extends Activity {
 
@@ -97,7 +98,7 @@ public class Activity_Record_Data extends Activity {
         @Override
         public void run() {
             // todo: Create the sequence of events for the users to perform to record the data
-            instr_textview.setText("Instructions to tell users what to do! TODO");
+//            instr_textview.setText("Instructions to tell users what to do! TODO");
 
 
         }
@@ -129,24 +130,6 @@ public class Activity_Record_Data extends Activity {
 
     }
 
-//    private final Runnable tickUi = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (eegStale) {
-//                TextView tp9 = findViewById(R.id.eeg_tp9);
-//                TextView fp1 = findViewById(R.id.eeg_af7);
-//                TextView fp2 = findViewById(R.id.eeg_af8);
-//                TextView tp10 = findViewById(R.id.eeg_tp10);
-//                tp9.setText(String.format("%6.2f", eegBuffer[0]));
-//                fp1.setText(String.format("%6.2f", eegBuffer[1]));
-//                fp2.setText(String.format("%6.2f", eegBuffer[2]));
-//                tp10.setText(String.format("%6.2f", eegBuffer[3]));
-//
-//            }
-//            handler.postDelayed(tickUi, 1000 / 10); // update 10 times per second
-//        }
-//    };
-
     private void initFileWriter() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
         Date now = new Date();
@@ -172,8 +155,6 @@ public class Activity_Record_Data extends Activity {
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
 
-//        instr_textview = findViewById(R.id.instr_tv);
-
 //        start_record_btn = findViewById(R.id.start_recording);
 //        start_record_btn.setEnabled(false);
 //        start_record_btn.setOnClickListener(new View.OnClickListener() {
@@ -185,16 +166,8 @@ public class Activity_Record_Data extends Activity {
 //                    recording = false;
 //                    start_record_btn.setText(R.string.start_rec);
 //
-//                } else {
-//                    // Start Recording Data
-//                    initFileWriter();
-//                    fileWriter.get().addAnnotationString(0, "Recording Started");
-//                    recording = true;
-//                    start_record_btn.setText(R.string.stop_rec);
-//                    handler.post(recording_events);
 //                }
-//            }
-//        });
+//             });
 
     }
 
@@ -209,16 +182,22 @@ public class Activity_Record_Data extends Activity {
 
         builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
+                // Start Recording Data
+                initFileWriter();
+                fileWriter.get().addAnnotationString(0, "Recording Started");
+                recording = true;
+                handler.post(recording_events);
+                Log.d(TAG, "Start EEG Recording to file!");
             }
         });
 
         // 3. Get the AlertDialog from create()
         dialog = builder.create();
-
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
-        ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
 
 
