@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/timer_progressbar"
         style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
         android:layout_width="0dp"
         android:layout_height="5dp"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/arith_question"
         android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginEnd="38dp"
@@ -29,11 +29,11 @@
         android:layout_marginTop="124dp"
         android:gravity="center"
         android:text="(5+7)-2"
-        android:textSize="32dp"
+        android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+        app:layout_constraintTop_toBottomOf="@+id/timer_progressbar" />
 
     <TextView
         android:id="@+id/muse_text"
@@ -156,5 +156,17 @@
         app:layout_constraintRight_toRightOf="parent"
 
         />
+
+    <TextView
+        android:id="@+id/current_activity_instr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:text="Current Activity: Practice"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timer_progressbar" />
 
 </android.support.constraint.ConstraintLayout>

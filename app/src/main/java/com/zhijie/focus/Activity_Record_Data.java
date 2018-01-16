@@ -11,11 +11,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
     TODO: Create Spinner while connecting
     TODO: Better connection animation
  */
-public class Activity_Record_Data extends Activity {
+public class Activity_Record_Data extends Activity implements View.OnClickListener {
 
     private final String TAG = "TestLibMuseAndroid";
     private final Handler handler = new Handler();
@@ -55,54 +57,23 @@ public class Activity_Record_Data extends Activity {
     private final double[] eegBuffer = new double[6];
     private final double[] alphaBuffer = new double[6];
     private final double[] accelBuffer = new double[3];
-    /**
-     * We don't want to block the UI thread while we write to a file, so the file
-     * writing is moved to a separate thread.
-     */
-    private final Thread fileThread = new Thread() {
-        @Override
-        public void run() {
-            Looper.prepare();
 
-            SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
-            Date now = new Date();
-            String fileName = formatter.format(now) + ".muse";
-
-            fileHandler.set(new Handler());
-            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-            final File file = new File(dir, fileName);
-            // MuseFileWriter will append to an existing file.
-            // In this case, we want to start fresh so the file
-            // if it exists.
-            if (file.exists()) {
-                file.delete();
-            }
-            Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
-            fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
-            Looper.loop();
-        }
-    };
     AlertDialog dialog;
     private Muse muse;
     private MuseManagerAndroid manager;
     private DataListener dataListener; // Receive packets from connected band
     private ConnectionListener connectionListener; //Headband connection Status
-    private boolean eegStale;
-    private boolean alphaStale;
-    private boolean accelStale;
-    private Context context;
+
     private boolean recording = false;
-    private Button start_record_btn;
-    private TextView instr_textview;
-    private Runnable recording_events = new Runnable() {
-        @Override
-        public void run() {
-            // todo: Create the sequence of events for the users to perform to record the data
-//            instr_textview.setText("Instructions to tell users what to do! TODO");
+
+    private Context context;
+
+    private TextView tv_current_activity_instr;
+    private TextView tv_arith_question;
+    private ProgressBar pb_timer;
 
 
-        }
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,9 +90,6 @@ public class Activity_Record_Data extends Activity {
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
 
-//        fileThread.start(); // Start File Thread
-
-
         // Connect Muse Activity
         Intent i = new Intent(this, Activity_Connect_Muse.class);
         startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
@@ -130,30 +98,161 @@ public class Activity_Record_Data extends Activity {
 
     }
 
-    private void initFileWriter() {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
-        Date now = new Date();
-        String fileName = formatter.format(now) + ".muse";
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.ans0:
+                Log.d(TAG, "Ans0");
 
-        fileHandler.set(new Handler());
-        final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        final File file = new File(dir, fileName);
-        // MuseFileWriter will append to an existing file.
-        // In this case, we want to start fresh so the file
-        // if it exists.
-        if (file.exists()) {
-            file.delete();
+//                int time = 120 * 1000;
+//                pb_timer.setMax(time/1000);
+//                new CountDownTimer(time,1000) {
+//                    @Override
+//                    public void onTick(long millisUntilFinished) {
+//                        int progress = (int) (millisUntilFinished/1000);
+//                        tv_arith_question.setText("Time:" + progress);
+//                        pb_timer.setProgress(progress);
+//                    }
+//
+//                    @Override
+//                    public void onFinish() {
+//                        pb_timer.setProgress(0);
+//                    }
+//                }.start();
+
+                break;
+            case R.id.ans1:
+                Log.d(TAG, "Ans1");
+                break;
+            case R.id.ans2:
+                Log.d(TAG, "Ans2");
+                break;
+            case R.id.ans3:
+                Log.d(TAG, "Ans3");
+                break;
+            case R.id.ans4:
+                Log.d(TAG, "Ans4");
+                break;
+            case R.id.ans5:
+                Log.d(TAG, "Ans5");
+                break;
+            case R.id.ans6:
+                Log.d(TAG, "Ans6");
+                break;
+            case R.id.ans7:
+                Log.d(TAG, "Ans7");
+                break;
+            case R.id.ans8:
+                Log.d(TAG, "Ans8");
+                break;
+            case R.id.ans9:
+                Log.d(TAG, "Ans9");
+                break;
+
+            default:
+                Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
+
         }
-        Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
-        fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
+
     }
 
-    /*
-     *  -------------- Return from startActivityForResult ------------------
-     */
+    /* Test Sequences */
+    private void start_arithmetic_test_dialog() {
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setMessage(R.string.arith_test_instruction)
+                .setTitle("Instructions");
+
+
+        builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // Start Recording Data
+                initFileWriter();
+                fileWriter.get().addAnnotationString(0, "Recording Started");
+                recording = true;
+                handler.post(arith_test_sequence);
+                Log.d(TAG, "Start EEG Recording to file!");
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+//        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+//                .setEnabled(false);
+
+    }
+
+    private Runnable arith_test_sequence = new Runnable() {
+        @Override
+        public void run() {
+            handler.post(arith_test_ui_update); //Begin UI Updates
+            tv_current_activity_instr.setText("Activity: Practice! 2 Min");
+
+            tv_arith_question.setText("question la"); // todo generate and set question
+
+            int time = 120 * 1000;
+            pb_timer.setMax(time / 1000);
+            new CountDownTimer(time, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    int progress = (int) (millisUntilFinished / 1000);
+                    tv_arith_question.setText("Time:" + progress);
+                    pb_timer.setProgress(progress);
+                }
+
+                @Override
+                public void onFinish() {
+                    pb_timer.setProgress(0);
+                }
+            }.start();
+        }
+    };
+
+    // TODO UPDATE PROGRESS BAR
+    // TODO UPDATE TIMER COUNTDOWN
+    private Runnable arith_test_ui_update = new Runnable() {
+        @Override
+        public void run() {
+
+            handler.postDelayed(arith_test_ui_update, 1000 / 60);
+        }
+    };
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
+        tv_current_activity_instr = findViewById(R.id.current_activity_instr);
+        tv_arith_question = findViewById(R.id.arith_question);
+        pb_timer = findViewById(R.id.timer_progressbar);
+
+        //Buttons
+        Button a0 = findViewById(R.id.ans0);
+        Button a1 = findViewById(R.id.ans1);
+        Button a2 = findViewById(R.id.ans2);
+        Button a3 = findViewById(R.id.ans3);
+        Button a4 = findViewById(R.id.ans4);
+        Button a5 = findViewById(R.id.ans5);
+        Button a6 = findViewById(R.id.ans6);
+        Button a7 = findViewById(R.id.ans7);
+        Button a8 = findViewById(R.id.ans8);
+        Button a9 = findViewById(R.id.ans9);
+
+        a0.setOnClickListener(this);
+        a1.setOnClickListener(this);
+        a2.setOnClickListener(this);
+        a3.setOnClickListener(this);
+        a4.setOnClickListener(this);
+        a5.setOnClickListener(this);
+        a6.setOnClickListener(this);
+        a7.setOnClickListener(this);
+        a8.setOnClickListener(this);
+        a9.setOnClickListener(this);
+
 
 //        start_record_btn = findViewById(R.id.start_recording);
 //        start_record_btn.setEnabled(false);
@@ -171,37 +270,11 @@ public class Activity_Record_Data extends Activity {
 
     }
 
-    private void start_arithmetic_test_dialog() {
-        // 1. Instantiate an AlertDialog.Builder with its constructor
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        // 2. Chain together various setter methods to set the dialog characteristics
-        builder.setMessage(R.string.arith_test_instruction)
-                .setTitle("Instructions");
+    /*
+     *  -------------- Return from startActivityForResult ------------------
+     */
 
 
-        builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // Start Recording Data
-                initFileWriter();
-                fileWriter.get().addAnnotationString(0, "Recording Started");
-                recording = true;
-                handler.post(recording_events);
-                Log.d(TAG, "Start EEG Recording to file!");
-            }
-        });
-
-        // 3. Get the AlertDialog from create()
-        dialog = builder.create();
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
-
-        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
-                .setEnabled(false);
-
-
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -221,9 +294,6 @@ public class Activity_Record_Data extends Activity {
             }
         }
     }
-    /*
-     * -------------------- Begin File I/O --------------------------
-     */
 
     private final void connect_to_muse() {
         muse.unregisterAllListeners();
@@ -240,6 +310,54 @@ public class Activity_Record_Data extends Activity {
 
     }
 
+    /*
+     * -------------------- Begin File I/O --------------------------
+     */
+    private void initFileWriter() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
+        Date now = new Date();
+        String fileName = formatter.format(now) + ".muse";
+
+        fileHandler.set(new Handler());
+        final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        final File file = new File(dir, fileName);
+        // MuseFileWriter will append to an existing file.
+        // In this case, we want to start fresh so the file
+        // if it exists.
+        if (file.exists()) {
+            file.delete();
+        }
+        Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
+        fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
+    }
+
+//    /**
+//     * We don't want to block the UI thread while we write to a file, so the file
+//     * writing is moved to a separate thread.
+//     */
+//    private final Thread fileThread = new Thread() {
+//        @Override
+//        public void run() {
+//            Looper.prepare();
+//
+//            SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
+//            Date now = new Date();
+//            String fileName = formatter.format(now) + ".muse";
+//
+//            fileHandler.set(new Handler());
+//            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+//            final File file = new File(dir, fileName);
+//            // MuseFileWriter will append to an existing file.
+//            // In this case, we want to start fresh so the file
+//            // if it exists.
+//            if (file.exists()) {
+//                file.delete();
+//            }
+//            Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
+//            fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
+//            Looper.loop();
+//        }
+//    };
     /**
      * Writes the provided MuseDataPacket to the file.  MuseFileWriter knows
      * how to write all packet types generated from LibMuse.
@@ -339,7 +457,7 @@ public class Activity_Record_Data extends Activity {
 
         } else if (current == ConnectionState.CONNECTED) {
 //            start_record_btn.setEnabled(true);
-            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
                     .setEnabled(true);
 
         }
@@ -366,17 +484,14 @@ public class Activity_Record_Data extends Activity {
             case EEG:
                 assert (eegBuffer.length >= n);
                 getEegChannelValues(eegBuffer, p);
-                eegStale = true;
                 break;
             case ACCELEROMETER:
                 assert (accelBuffer.length >= n);
                 getAccelValues(p);
-                accelStale = true;
                 break;
             case ALPHA_RELATIVE:
                 assert (alphaBuffer.length >= n);
                 getEegChannelValues(alphaBuffer, p);
-                alphaStale = true;
                 break;
             case BATTERY:
             case DRL_REF:
