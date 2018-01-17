@@ -41,7 +41,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
+
+import bsh.EvalError;
+import bsh.Interpreter;
 
 /*
     TODO: Create Spinner while connecting
@@ -72,6 +76,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private TextView tv_arith_question;
     private ProgressBar pb_timer;
 
+    private int answer;
+
+    private final int MAX_BOUND = 99;
 
 
 
@@ -90,9 +97,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
 
+        //TODO UNCHANGE THIS BACK BEFORE COMMIT
         // Connect Muse Activity
-        Intent i = new Intent(this, Activity_Connect_Muse.class);
-        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+//        Intent i = new Intent(this, Activity_Connect_Muse.class);
+//        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+
+        start_arithmetic_test_dialog(); //TODO REMOVE, FOR TESTING PURPOSES
 
         initUI(); // Init UI Elements
 
@@ -122,7 +132,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
                 break;
             case R.id.ans1:
-                Log.d(TAG, "Ans1");
+//                Log.d(TAG, "Ans1");
+                generate_questions();
                 break;
             case R.id.ans2:
                 Log.d(TAG, "Ans2");
@@ -183,6 +194,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
+        //TODO UNCOMMENT THIS
 //        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
 //                .setEnabled(false);
 
@@ -214,6 +226,53 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         }
     };
 
+    private void generate_questions() {
+        Random r = new Random();
+
+        answer = r.nextInt(9);
+        String eqn;
+        int curr;
+
+        String opt[] = {"+", "-"};
+        int o1 = r.nextInt(2);
+        int a = gen_next_num(answer, opt[o1]);
+        curr = eval(answer + opt[o1] + a);
+
+        int o2 = r.nextInt(2);
+        int b = gen_next_num(curr, opt[o2]);
+
+
+        int c = eval(curr + opt[o2] + b);
+        eqn = c + opt[1 - o1] + a + opt[1 - o2] + b;
+
+
+        Log.d(TAG, eqn + "\n" + "Ans:" + answer);
+    }
+
+    private int gen_next_num(int curr, String opt) {
+        Random r = new Random();
+        Log.d(TAG, "Curr:" + curr);
+        int a = -1;
+        if (opt.equals("+")) {
+            a = r.nextInt(MAX_BOUND - curr) + curr;
+        } else if (opt.equals("-")) {
+            a = r.nextInt(curr);
+        }
+
+        return a;
+    }
+
+    private int eval(String eqn) {
+        int ans = -1;
+        try {
+            Interpreter itpr = new Interpreter();
+            ans = (int) itpr.eval(eqn);
+        } catch (EvalError e) {
+            Log.d(TAG, e.getErrorText());
+        }
+        return ans;
+    }
+
     // TODO UPDATE PROGRESS BAR
     // TODO UPDATE TIMER COUNTDOWN
     private Runnable arith_test_ui_update = new Runnable() {
@@ -223,6 +282,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             handler.postDelayed(arith_test_ui_update, 1000 / 60);
         }
     };
+
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
