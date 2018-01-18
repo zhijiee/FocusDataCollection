@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/arithmetic_test_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -40,6 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
         android:text="Muse:"
         app:layout_constraintBaseline_toBaselineOf="@+id/con_status"
         app:layout_constraintEnd_toStartOf="@+id/con_status" />
@@ -50,6 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
         android:text="Unknown"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -59,6 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
+        android:layout_marginLeft="36dp"
         android:text="6"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
         app:layout_constraintStart_toEndOf="@+id/ans5" />
@@ -80,6 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
+        android:layout_marginRight="36dp"
         android:text="4"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
         app:layout_constraintEnd_toStartOf="@+id/ans5" />
@@ -89,6 +94,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
+        android:layout_marginRight="36dp"
         android:text="1"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
         app:layout_constraintEnd_toStartOf="@+id/ans2" />
@@ -98,6 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
+        android:layout_marginLeft="36dp"
         android:text="3"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
         app:layout_constraintStart_toEndOf="@+id/ans2" />
@@ -119,6 +126,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
+        android:layout_marginRight="36dp"
         android:text="7"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
         app:layout_constraintEnd_toStartOf="@+id/ans8" />
@@ -128,6 +136,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
+        android:layout_marginLeft="36dp"
         android:text="9"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
         app:layout_constraintStart_toEndOf="@+id/ans8" />
@@ -142,8 +151,7 @@
         android:text="8"
         app:layout_constraintBottom_toTopOf="@+id/ans0"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" /><!--tools:layout_editor_absoluteX="173dp" -->
-    />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/ans0"
@@ -168,5 +176,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timer_progressbar" />
+
+    <TextView
+        android:id="@+id/correct_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Correct!"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@+id/arith_question"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteX="180dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -78,8 +78,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     private int answer;
 
-    private final int MAX_BOUND = 99;
-
 
 
     @Override
@@ -110,60 +108,46 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        int user_input = -1;
         switch (v.getId()) {
             case R.id.ans0:
-                Log.d(TAG, "Ans0");
-
-//                int time = 120 * 1000;
-//                pb_timer.setMax(time/1000);
-//                new CountDownTimer(time,1000) {
-//                    @Override
-//                    public void onTick(long millisUntilFinished) {
-//                        int progress = (int) (millisUntilFinished/1000);
-//                        tv_arith_question.setText("Time:" + progress);
-//                        pb_timer.setProgress(progress);
-//                    }
-//
-//                    @Override
-//                    public void onFinish() {
-//                        pb_timer.setProgress(0);
-//                    }
-//                }.start();
-
+                user_input = 0;
                 break;
             case R.id.ans1:
-//                Log.d(TAG, "Ans1");
-                generate_questions();
+                user_input = 1;
                 break;
             case R.id.ans2:
-                Log.d(TAG, "Ans2");
+                user_input = 2;
                 break;
             case R.id.ans3:
-                Log.d(TAG, "Ans3");
+                user_input = 3;
                 break;
             case R.id.ans4:
-                Log.d(TAG, "Ans4");
+                user_input = 4;
                 break;
             case R.id.ans5:
-                Log.d(TAG, "Ans5");
+                user_input = 5;
                 break;
             case R.id.ans6:
-                Log.d(TAG, "Ans6");
+                user_input = 6;
                 break;
             case R.id.ans7:
-                Log.d(TAG, "Ans7");
+                user_input = 7;
                 break;
             case R.id.ans8:
-                Log.d(TAG, "Ans8");
+                user_input = 8;
                 break;
             case R.id.ans9:
-                Log.d(TAG, "Ans9");
+                user_input = 9;
                 break;
 
             default:
                 Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
 
         }
+    }
+
+    private void answer_question() {
 
     }
 
@@ -204,9 +188,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             handler.post(arith_test_ui_update); //Begin UI Updates
-            tv_current_activity_instr.setText("Activity: Practice! 2 Min");
+            tv_current_activity_instr.setText("Activity: Practice Session 2 Min!");
 
-            tv_arith_question.setText("question la"); // todo generate and set question
+            tv_arith_question.setText(generate_questions()); // todo generate and set question
 
             int time = 120 * 1000;
             pb_timer.setMax(time / 1000);
@@ -226,42 +210,78 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         }
     };
 
-    private void generate_questions() {
+    private String generate_questions() {
         Random r = new Random();
 
-        answer = r.nextInt(9);
+        answer = 0; //r.nextInt(9);
         String eqn;
         int curr;
-
         String opt[] = {"+", "-"};
-        int o1 = r.nextInt(2);
-        int a = gen_next_num(answer, opt[o1]);
-        curr = eval(answer + opt[o1] + a);
+//        int o1 = r.nextInt(2);
+//        int o2 = r.nextInt(2);
+//        int o3 = r.nextInt(2);
 
-        int o2 = r.nextInt(2);
-        int b = gen_next_num(curr, opt[o2]);
+        int a = r.nextInt(100);
+        String b = gen_next_num(a, false);
+        curr = eval(a + b);
+        String c = gen_next_num(curr, false);
+        curr = eval(a + b + c);
+        String d = gen_next_num(curr, true);
 
-
-        int c = eval(curr + opt[o2] + b);
-        eqn = c + opt[1 - o1] + a + opt[1 - o2] + b;
-
-
-        Log.d(TAG, eqn + "\n" + "Ans:" + answer);
+        eqn = a + b + c + d;
+        answer = eval(a + b + c + d);
+        Log.d(TAG, eqn + "\n" + "Ans: " + answer);
+        return eqn;
     }
 
-    private int gen_next_num(int curr, String opt) {
+    /**
+     * Generate Next number with operator e.g. "+ 1" or "- 1". Generated number will be kept between 0 - 99.
+     * TODO Add multiplications into the next number generation
+     *
+     * @param curr      Current sum of all digits.
+     * @param final_num Next number is final, end result will make equation answer range from 0 - 9
+     * @return "+ 1" or "- 1". Generated number will keep the sum between 0 - 99
+     */
+    private String gen_next_num(int curr, Boolean final_num) {
+
+        int bound;
+        String new_num = "";
         Random r = new Random();
-        Log.d(TAG, "Curr:" + curr);
-        int a = -1;
-        if (opt.equals("+")) {
-            a = r.nextInt(MAX_BOUND - curr) + curr;
-        } else if (opt.equals("-")) {
-            a = r.nextInt(curr);
+        int opt = r.nextInt(2);
+
+        if (final_num) {
+            bound = 10;
+        } else {
+            bound = 99;
         }
 
-        return a;
+        if (curr < 10) {
+
+            if (opt == 0) {
+                new_num = "+" + r.nextInt(bound - curr);
+            } else if (opt == 1)
+                new_num = "-" + r.nextInt(1 + curr);
+
+        } else {
+            if (final_num) { //Answer must be between 0 - 10
+                new_num = "-" + (r.nextInt(10) + curr - 9);
+            } else {
+                if (opt == 0) {
+                    new_num = "+" + r.nextInt(bound - curr);
+                } else if (opt == 1)
+                    new_num = "-" + r.nextInt(1 + curr);
+            }
+
+        }
+
+        return new_num;
     }
 
+    /**
+     * Evaluate the provided equation and returns int.
+     * @param eqn String of equation to be solved.
+     * @return Result of equation
+     */
     private int eval(String eqn) {
         int ans = -1;
         try {
