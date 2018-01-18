@@ -178,7 +178,7 @@
         app:layout_constraintTop_toBottomOf="@+id/timer_progressbar" />
 
     <TextView
-        android:id="@+id/correct_indicator"
+        android:id="@+id/qsn_feedback"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"

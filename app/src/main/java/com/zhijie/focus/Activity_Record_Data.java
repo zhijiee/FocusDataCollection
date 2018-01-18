@@ -74,6 +74,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     private TextView tv_current_activity_instr;
     private TextView tv_arith_question;
+    private TextView tv_qsn_feedback;
     private ProgressBar pb_timer;
 
     private int answer;
@@ -144,10 +145,26 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             default:
                 Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
 
+
         }
+
+        answer_question(user_input);
     }
 
-    private void answer_question() {
+    private void answer_question(int user_input) {
+        if (user_input == answer) {
+            tv_qsn_feedback.setText("Correct!!");
+        } else {
+            tv_qsn_feedback.setText("Wrong!!!!");
+        }
+
+        tv_arith_question.setText(generate_questions()); // todo generate and set question
+
+
+    }
+
+    //TODO Called when question timeout
+    private void timeout() {
 
     }
 
@@ -198,7 +215,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 @Override
                 public void onTick(long millisUntilFinished) {
                     int progress = (int) (millisUntilFinished / 1000);
-                    tv_arith_question.setText("Time:" + progress);
+//                    tv_arith_question.setText("Time:" + progress);
                     pb_timer.setProgress(progress);
                 }
 
@@ -309,6 +326,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
         tv_arith_question = findViewById(R.id.arith_question);
         pb_timer = findViewById(R.id.timer_progressbar);
+        tv_qsn_feedback = findViewById(R.id.qsn_feedback);
 
         //Buttons
         Button a0 = findViewById(R.id.ans0);
