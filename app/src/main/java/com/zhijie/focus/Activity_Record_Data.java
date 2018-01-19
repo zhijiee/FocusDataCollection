@@ -38,6 +38,7 @@ import com.choosemuse.libmuse.MuseManagerAndroid;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -53,7 +54,7 @@ import bsh.Interpreter;
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
 
-    private final String TAG = "TestLibMuseAndroid";
+    private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
 
     private final AtomicReference<Handler> fileHandler = new AtomicReference<>();
@@ -78,8 +79,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private ProgressBar pb_timer;
 
     private int answer;
-
-
+    private List<Long> userTimeTaken;
+    private long question_start_time;
+    private long avg_time_taken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,62 +109,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     }
 
-    @Override
-    public void onClick(View v) {
-        int user_input = -1;
-        switch (v.getId()) {
-            case R.id.ans0:
-                user_input = 0;
-                break;
-            case R.id.ans1:
-                user_input = 1;
-                break;
-            case R.id.ans2:
-                user_input = 2;
-                break;
-            case R.id.ans3:
-                user_input = 3;
-                break;
-            case R.id.ans4:
-                user_input = 4;
-                break;
-            case R.id.ans5:
-                user_input = 5;
-                break;
-            case R.id.ans6:
-                user_input = 6;
-                break;
-            case R.id.ans7:
-                user_input = 7;
-                break;
-            case R.id.ans8:
-                user_input = 8;
-                break;
-            case R.id.ans9:
-                user_input = 9;
-                break;
-
-            default:
-                Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
-
-
-        }
-
-        answer_question(user_input);
-    }
-
-    private void answer_question(int user_input) {
-        if (user_input == answer) {
-            tv_qsn_feedback.setText("Correct!!");
-        } else {
-            tv_qsn_feedback.setText("Wrong!!!!");
-        }
-
-        tv_arith_question.setText(generate_questions()); // todo generate and set question
-
-
-    }
-
     //TODO Called when question timeout
     private void timeout() {
 
@@ -170,21 +116,16 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     /* Test Sequences */
     private void start_arithmetic_test_dialog() {
-        // 1. Instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        // 2. Chain together various setter methods to set the dialog characteristics
-        builder.setMessage(R.string.arith_test_instruction)
+        builder.setMessage(R.string.arith_practice_instruction)
                 .setTitle("Instructions");
-
-
         builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Start Recording Data
                 initFileWriter();
                 fileWriter.get().addAnnotationString(0, "Recording Started");
                 recording = true;
-                handler.post(arith_test_sequence);
+                handler.post(arith_training_session);
                 Log.d(TAG, "Start EEG Recording to file!");
             }
         });
@@ -201,31 +142,81 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     }
 
-    private Runnable arith_test_sequence = new Runnable() {
+    /**
+     * Start of Training Session
+     */
+    private Runnable arith_training_session = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG, "Arithmetic Training Session Started!");
             handler.post(arith_test_ui_update); //Begin UI Updates
-            tv_current_activity_instr.setText("Activity: Practice Session 2 Min!");
+            tv_current_activity_instr.setText("Activity: Practice Session 3 Min!");
 
-            tv_arith_question.setText(generate_questions()); // todo generate and set question
-
-            int time = 120 * 1000;
+            // Set Timer for Training session, When time ended --> Break
+            int time = 3 * 1000; //TODO CHANGE THE TIME BACK!!!!--------------------------------
             pb_timer.setMax(time / 1000);
             new CountDownTimer(time, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     int progress = (int) (millisUntilFinished / 1000);
-//                    tv_arith_question.setText("Time:" + progress);
                     pb_timer.setProgress(progress);
+                    //TODO Create new text timer display
                 }
 
                 @Override
                 public void onFinish() {
+                    Log.d(TAG, "Arithmetic Training Session Ended");
+                    Log.d(TAG, "Break Session Started!");
                     pb_timer.setProgress(0);
+                    fileWriter.get().addAnnotationString(0, "Practice -> Break");
+
+                    //Calculate time taken for each question for the Test later.
+                    long total_time_taken = 0;
+                    for (int i = 0; i < userTimeTaken.size(); i++) {
+                        total_time_taken += userTimeTaken.get(i);
+                    }
+                    avg_time_taken = total_time_taken / userTimeTaken.size();
+                    Log.d(TAG, "Avg time: " + avg_time_taken);
+
+                    // Break Session
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage(R.string.break_instruction)
+                            .setTitle("Break Instructions");
+                    builder.setPositiveButton("Begin Relaxation", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            fileWriter.get().addAnnotationString(0, "Break -> Test");
+                            question_start_time = System.currentTimeMillis();
+
+                            //Begin Test Session
+                            handler.post(arith_test_session);
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.show();
+
                 }
             }.start();
+
+            tv_arith_question.setText(generate_questions());
+            question_start_time = System.currentTimeMillis();
+
+
         }
     };
+
+    /**
+     * Arith Test Session
+     */
+    private Runnable arith_test_session = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "Begin Arithmetic Test Session!!");
+
+        }
+    };
+
 
     private String generate_questions() {
         Random r = new Random();
@@ -233,11 +224,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         answer = 0; //r.nextInt(9);
         String eqn;
         int curr;
-        String opt[] = {"+", "-"};
-//        int o1 = r.nextInt(2);
-//        int o2 = r.nextInt(2);
-//        int o3 = r.nextInt(2);
-
         int a = r.nextInt(100);
         String b = gen_next_num(a, false);
         curr = eval(a + b);
@@ -310,6 +296,64 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         return ans;
     }
 
+
+    @Override
+    public void onClick(View v) {
+        int user_input = -1;
+        switch (v.getId()) {
+            case R.id.ans0:
+                user_input = 0;
+                break;
+            case R.id.ans1:
+                user_input = 1;
+                break;
+            case R.id.ans2:
+                user_input = 2;
+                break;
+            case R.id.ans3:
+                user_input = 3;
+                break;
+            case R.id.ans4:
+                user_input = 4;
+                break;
+            case R.id.ans5:
+                user_input = 5;
+                break;
+            case R.id.ans6:
+                user_input = 6;
+                break;
+            case R.id.ans7:
+                user_input = 7;
+                break;
+            case R.id.ans8:
+                user_input = 8;
+                break;
+            case R.id.ans9:
+                user_input = 9;
+                break;
+            default:
+                Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
+
+        }
+        answer_question(user_input);
+    }
+
+    private void answer_question(int user_input) {
+        if (user_input == answer) {
+            tv_qsn_feedback.setText("Correct!!");
+        } else {
+            tv_qsn_feedback.setText("Wrong!!!!");
+        }
+
+        userTimeTaken.add(System.currentTimeMillis() - question_start_time); // Record user time taken in milliseconds.
+        Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
+
+        tv_arith_question.setText(generate_questions());
+        question_start_time = System.currentTimeMillis();
+
+    }
+
+
     // TODO UPDATE PROGRESS BAR
     // TODO UPDATE TIMER COUNTDOWN
     private Runnable arith_test_ui_update = new Runnable() {
@@ -327,6 +371,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_arith_question = findViewById(R.id.arith_question);
         pb_timer = findViewById(R.id.timer_progressbar);
         tv_qsn_feedback = findViewById(R.id.qsn_feedback);
+
+        userTimeTaken = new ArrayList<>();
 
         //Buttons
         Button a0 = findViewById(R.id.ans0);

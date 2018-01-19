@@ -32,7 +32,7 @@
 
     <string name="p1_instr_1"> Please </string>
 
-    <string name="arith_test_instruction">1. 2 Min of Arithmetic Practice\n
+    <string name="arith_practice_instruction">1. 2 Min of Arithmetic Practice\n
 2. 15 Seconds break\n
 3. 2 Min Arithmetic Test\n
 4. 15 Seconds break\n
@@ -40,4 +40,5 @@
 6. 15 Seconds break\n
 6. Repeat (3 - 6) 2 more times\n
     </string>
+    <string name="break_instruction"> Now take a short break. Click start when ready. </string>
 </resources>
