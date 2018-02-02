@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -53,6 +54,8 @@ import bsh.Interpreter;
     TODO: Better connection animation
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
+    //Global Variables
+    private final int ARITH_TRAINING_TIMEOUT = 5;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -150,10 +153,11 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         public void run() {
             Log.d(TAG, "Arithmetic Training Session Started!");
             handler.post(arith_test_ui_update); //Begin UI Updates
-            tv_current_activity_instr.setText("Activity: Practice Session 3 Min!");
+            tv_current_activity_instr.setText(R.string.tv_activity_instr);
 
             // Set Timer for Training session, When time ended --> Break
-            int time = 3 * 1000; //TODO CHANGE THE TIME BACK!!!!--------------------------------
+
+            int time = ARITH_TRAINING_TIMEOUT * 1000; //TODO CHANGE THE TIME BACK!!!!--------------------------------
             pb_timer.setMax(time / 1000);
             new CountDownTimer(time, 1000) {
                 @Override
@@ -165,30 +169,33 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
                 @Override
                 public void onFinish() {
+                    fileWriter.get().addAnnotationString(0, "Practice to Break");
                     Log.d(TAG, "Arithmetic Training Session Ended");
                     Log.d(TAG, "Break Session Started!");
                     pb_timer.setProgress(0);
-                    fileWriter.get().addAnnotationString(0, "Practice -> Break");
 
                     //Calculate time taken for each question for the Test later.
                     long total_time_taken = 0;
                     for (int i = 0; i < userTimeTaken.size(); i++) {
                         total_time_taken += userTimeTaken.get(i);
                     }
-                    avg_time_taken = total_time_taken / userTimeTaken.size();
+
+                    if (userTimeTaken.size() == 0) {
+                        avg_time_taken = total_time_taken;
+                    } else {
+                        avg_time_taken = total_time_taken / userTimeTaken.size();
+                    }
                     Log.d(TAG, "Avg time: " + avg_time_taken);
 
                     // Break Session
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setMessage(R.string.break_instruction)
-                            .setTitle("Break Instructions");
-                    builder.setPositiveButton("Begin Relaxation", new DialogInterface.OnClickListener() {
+                    builder.setMessage(R.string.dialog_break_msg_1)
+                            .setTitle(R.string.dialog_title_break);
+                    builder.setPositiveButton(R.string.dialog_btn_begin_relaxtion, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            fileWriter.get().addAnnotationString(0, "Break -> Test");
                             question_start_time = System.currentTimeMillis();
-
-                            //Begin Test Session
-                            handler.post(arith_test_session);
+                            //Begin Guided Meditation
+                            handler.post(guided_meditation_session);
                         }
                     });
                     dialog = builder.create();
@@ -207,12 +214,19 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     };
 
     /**
-     * Arith Test Session
+     * Guided Meditation Session
      */
-    private Runnable arith_test_session = new Runnable() {
+    private Runnable guided_meditation_session = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "Begin Arithmetic Test Session!!");
+            fileWriter.get().addAnnotationString(0, "Guided Meditation");
+            Log.d(TAG, "Begin Guided Meditation Session!!");
+            setContentView(R.layout.guided_meditation);
+            MediaPlayer mp = MediaPlayer.create(context, R.raw.guided_meditation);
+            mp.start();
+
+
+
 
         }
     };
@@ -665,15 +679,15 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     public void onBackPressed() {
 
         // TODO: Prompt dialog to ask if really want to exit
-        if (recording) {
-            Toast.makeText(context, "Recording in Progress", Toast.LENGTH_SHORT).show();
-        } else {
-            // Disconnect Muse when returning to previous activity.
-            if (muse != null)
-                muse.disconnect();
-            muse = null;
-            finish();
-        }
+//        if (recording) {
+//            Toast.makeText(context, "Recording in Progress", Toast.LENGTH_SHORT).show();
+//        } else {
+//            // Disconnect Muse when returning to previous activity.
+//            if (muse != null)
+//                muse.disconnect();
+//            muse = null;
+//            finish();
+//        }
 
     }
 
