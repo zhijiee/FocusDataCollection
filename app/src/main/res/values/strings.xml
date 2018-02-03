@@ -32,17 +32,23 @@
 
     <string name="p1_instr_1"> Please </string>
 
-    <string name="arith_practice_instruction">
+    <string name="dialog_arith_training_title"> Instruction </string>
+    <string name="dialog_arith_training_instruction">
         1. Arithmetic Training (3 Minutes) \n
         2. Break\n
         3. Guided Meditation (10 Minutes) \n
         4. Break\n
         5. Arithmetic Test (3 Minutes)  \n
     </string>
-    <string name="dialog_break_msg_1"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
 
-    <string name="dialog_title_break"> Break </string>
-    <string name="dialog_btn_begin_relaxtion"> Begin Guided Meditation </string>
 
-    <string name="tv_activity_instr"></string>
+    <string name="dialog_break_title"> Break </string>
+    <string name="dialog_break_msg"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
+    <string name="dialog_break_btn_positive"> Begin Guided Meditation </string>
+
+    <string name="dialog_guided_meditation_title"> Guided Meditation Completed </string>
+    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation. Tap continue to start the Arithmetic Test!   </string>
+    <string name="dialog_guided_meditation_btn_pos"> Continue to Arithmetic Test </string>
+
+    <string name="tv_activity_instr"> hello change this lolol </string>
 </resources>

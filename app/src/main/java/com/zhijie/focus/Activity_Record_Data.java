@@ -55,7 +55,8 @@ import bsh.Interpreter;
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
     //Global Variables
-    private final int ARITH_TRAINING_TIMEOUT = 5;
+    private final int ARITH_TRAINING_TIMEOUT = 2;
+    private final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -78,7 +79,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     private TextView tv_current_activity_instr;
     private TextView tv_arith_question;
-    private TextView tv_qsn_feedback;
+    private TextView tv_qn_feedback;
     private ProgressBar pb_timer;
 
     private int answer;
@@ -101,7 +102,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
 
-        //TODO UNCHANGE THIS BACK BEFORE COMMIT
+        //TODO Uncomment this when going to test with MUSE
         // Connect Muse Activity
 //        Intent i = new Intent(this, Activity_Connect_Muse.class);
 //        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
@@ -120,8 +121,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     /* Test Sequences */
     private void start_arithmetic_test_dialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.arith_practice_instruction)
-                .setTitle("Instructions");
+        builder.setTitle(R.string.dialog_arith_training_title)
+                .setMessage(R.string.dialog_arith_training_instruction);
         builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Start Recording Data
@@ -152,7 +153,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             Log.d(TAG, "Arithmetic Training Session Started!");
-            handler.post(arith_test_ui_update); //Begin UI Updates
+            handler.post(arith_training_ui_update); //Begin UI Updates
             tv_current_activity_instr.setText(R.string.tv_activity_instr);
 
             // Set Timer for Training session, When time ended --> Break
@@ -189,9 +190,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
                     // Break Session
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setMessage(R.string.dialog_break_msg_1)
-                            .setTitle(R.string.dialog_title_break);
-                    builder.setPositiveButton(R.string.dialog_btn_begin_relaxtion, new DialogInterface.OnClickListener() {
+                    builder.setMessage(R.string.dialog_break_msg)
+                            .setTitle(R.string.dialog_break_title);
+                    builder.setPositiveButton(R.string.dialog_break_btn_positive, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             question_start_time = System.currentTimeMillis();
                             //Begin Guided Meditation
@@ -219,18 +220,48 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private Runnable guided_meditation_session = new Runnable() {
         @Override
         public void run() {
-            fileWriter.get().addAnnotationString(0, "Guided Meditation");
-            Log.d(TAG, "Begin Guided Meditation Session!!");
+            fileWriter.get().addAnnotationString(0, getString(R.string.anno_guided_meditation_begin));
+            Log.d(TAG, getString(R.string.anno_guided_meditation_begin));
             setContentView(R.layout.guided_meditation);
-            MediaPlayer mp = MediaPlayer.create(context, R.raw.guided_meditation);
+
+            MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
             mp.start();
 
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(R.string.dialog_guided_meditation_title)
+                            .setMessage(R.string.dialog_guided_meditation_msg);
 
+                    builder.setPositiveButton(R.string.dialog_guided_meditation_btn_pos, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Start Recording Data
+                            setContentView(R.layout.arithmetic_task);
+                            handler.post(arith_test_session);
+                        }
+                    });
 
+                    // 3. Get the AlertDialog from create()
+                    dialog = builder.create();
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.show();
 
+                }
+            });
         }
     };
 
+    private Runnable arith_test_session = new Runnable() {
+        @Override
+        public void run() {
+            fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
+            Log.d(TAG, getString(R.string.anno_arith_test_begin));
+
+        }
+    };
 
     private String generate_questions() {
         Random r = new Random();
@@ -354,9 +385,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     private void answer_question(int user_input) {
         if (user_input == answer) {
-            tv_qsn_feedback.setText("Correct!!");
+            tv_qn_feedback.setText("Correct!!");
         } else {
-            tv_qsn_feedback.setText("Wrong!!!!");
+            tv_qn_feedback.setText("Wrong!!!!");
         }
 
         userTimeTaken.add(System.currentTimeMillis() - question_start_time); // Record user time taken in milliseconds.
@@ -370,11 +401,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     // TODO UPDATE PROGRESS BAR
     // TODO UPDATE TIMER COUNTDOWN
-    private Runnable arith_test_ui_update = new Runnable() {
+    private Runnable arith_training_ui_update = new Runnable() {
         @Override
         public void run() {
-
-            handler.postDelayed(arith_test_ui_update, 1000 / 60);
+            handler.postDelayed(arith_training_ui_update, 1000 / 60);
         }
     };
 
@@ -384,7 +414,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
         tv_arith_question = findViewById(R.id.arith_question);
         pb_timer = findViewById(R.id.timer_progressbar);
-        tv_qsn_feedback = findViewById(R.id.qsn_feedback);
+        tv_qn_feedback = findViewById(R.id.qsn_feedback);
 
         userTimeTaken = new ArrayList<>();
 

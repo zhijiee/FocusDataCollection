@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="anno_arith_training_begin"> arithmetic_training_begin </string>
+    <string name="anno_arith_training_end"> arithmetic_training_ended </string>
+
+    <string name="anno_guided_meditation_begin"> guided_meditation_begin </string>
+    <string name="anno_guided_meditation_ended"> guided_meditation_ended </string>
+
+    <string name="anno_arith_test_begin"> arithmetic_test_begin </string>
+    <string name="anno_arith_test_end"> arithmetic_test_ended </string>
+</resources>
