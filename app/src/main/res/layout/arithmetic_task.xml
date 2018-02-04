@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ProgressBar
-        android:id="@+id/timer_progressbar"
+        android:id="@+id/pb_task_timer"
         style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
         android:layout_width="0dp"
         android:layout_height="5dp"
@@ -19,6 +19,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/current_activity_instr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:textSize="16sp"
+        android:text="Current Task: "
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pb_task_timer" />
 
     <TextView
         android:id="@+id/arith_question"
@@ -36,6 +49,137 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/current_activity_instr" />
+
+    <ProgressBar
+        android:id="@+id/pb_qsn_timeout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/arith_question"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/qsn_feedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Correct!"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/ans2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/arith_question" />
+
+    <Button
+        android:id="@+id/ans1"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16sp"
+        android:text="@string/btn_1"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
+        app:layout_constraintEnd_toStartOf="@+id/ans2" />
+
+    <Button
+        android:id="@+id/ans2"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/btn_2"
+        app:layout_constraintBottom_toTopOf="@+id/ans5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/ans3"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16sp"
+        android:text="@string/btn_3"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
+        app:layout_constraintStart_toEndOf="@+id/ans2" />
+
+    <Button
+        android:id="@+id/ans4"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16sp"
+        android:text="@string/btn_4"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
+        app:layout_constraintEnd_toStartOf="@+id/ans5" />
+
+    <Button
+        android:id="@+id/ans5"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/btn_5"
+        app:layout_constraintBottom_toTopOf="@+id/ans8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/ans6"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:text="@string/btn_6"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
+        app:layout_constraintStart_toEndOf="@+id/ans5" />
+
+    <Button
+        android:id="@+id/ans7"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16sp"
+        android:text="@string/btn_7"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
+        app:layout_constraintEnd_toStartOf="@+id/ans8" />
+
+    <Button
+        android:id="@+id/ans8"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/btn_8"
+        app:layout_constraintBottom_toTopOf="@+id/ans0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/ans9"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16sp"
+        android:text="@string/btn_9"
+        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
+        app:layout_constraintStart_toEndOf="@+id/ans8" />
+
+    <Button
+        android:id="@+id/ans0"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/btn_0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
         android:id="@+id/muse_text"
@@ -58,131 +202,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/ans6"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="16dp"
-        android:text="6"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
-        app:layout_constraintStart_toEndOf="@+id/ans5" />
-
-    <Button
-        android:id="@+id/ans5"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="5"
-        app:layout_constraintBottom_toTopOf="@+id/ans8"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/ans4"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginEnd="16dp"
-        android:text="4"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans5"
-        app:layout_constraintEnd_toStartOf="@+id/ans5" />
-
-    <Button
-        android:id="@+id/ans1"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginEnd="16dp"
-        android:text="1"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
-        app:layout_constraintEnd_toStartOf="@+id/ans2" />
-
-    <Button
-        android:id="@+id/ans3"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="16dp"
-        android:text="3"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
-        app:layout_constraintStart_toEndOf="@+id/ans2" />
-
-    <Button
-        android:id="@+id/ans2"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="2"
-        app:layout_constraintBottom_toTopOf="@+id/ans5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/ans7"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginEnd="16dp"
-        android:text="7"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
-        app:layout_constraintEnd_toStartOf="@+id/ans8" />
-
-    <Button
-        android:id="@+id/ans9"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="16dp"
-        android:text="9"
-        app:layout_constraintBaseline_toBaselineOf="@+id/ans8"
-        app:layout_constraintStart_toEndOf="@+id/ans8" />
-
-    <Button
-        android:id="@+id/ans8"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:text="8"
-        app:layout_constraintBottom_toTopOf="@+id/ans0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/ans0"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginBottom="16dp"
-        android:text="0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-
-        />
-
-    <TextView
-        android:id="@+id/current_activity_instr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:text="Current Activity: Practice"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timer_progressbar" />
-
-    <TextView
-        android:id="@+id/qsn_feedback"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Correct!"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/ans2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/arith_question" />
 
 </android.support.constraint.ConstraintLayout>

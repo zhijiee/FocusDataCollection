@@ -55,8 +55,9 @@ import bsh.Interpreter;
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
     //Global Variables
-    private final int ARITH_TRAINING_TIMEOUT = 2;
+    private final int ARITH_TRAINING_TIMEOUT = 3; //TODO CHANGE THE TIME BACK to 3 minutes!
     private final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
+    private final int ARITH_TEST_TIMEOUT = 10; //TODO change this
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -81,11 +82,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private TextView tv_arith_question;
     private TextView tv_qn_feedback;
     private ProgressBar pb_timer;
+    private ProgressBar pb_qsn_timeout;
 
     private int answer;
     private List<Long> userTimeTaken;
     private long question_start_time;
     private long avg_time_taken;
+
+    private CountDownTimer cdt_qsn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +111,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 //        Intent i = new Intent(this, Activity_Connect_Muse.class);
 //        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
 
-        start_arithmetic_test_dialog(); //TODO REMOVE, FOR TESTING PURPOSES
+        start_arithmetic_training_dialog(); //TODO REMOVE, FOR TESTING PURPOSES
 
         initUI(); // Init UI Elements
 
@@ -119,7 +123,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     }
 
     /* Test Sequences */
-    private void start_arithmetic_test_dialog() {
+    private void start_arithmetic_training_dialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.dialog_arith_training_title)
                 .setMessage(R.string.dialog_arith_training_instruction);
@@ -140,7 +144,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
-        //TODO UNCOMMENT THIS
+        //TODO UNCOMMENT THIS MUSE CONNECTION
 //        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
 //                .setEnabled(false);
 
@@ -154,12 +158,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         public void run() {
             Log.d(TAG, "Arithmetic Training Session Started!");
             handler.post(arith_training_ui_update); //Begin UI Updates
-            tv_current_activity_instr.setText(R.string.tv_activity_instr);
+            tv_current_activity_instr.setText(R.string.tv_activity_training_instr);
 
             // Set Timer for Training session, When time ended --> Break
 
-            int time = ARITH_TRAINING_TIMEOUT * 1000; //TODO CHANGE THE TIME BACK!!!!--------------------------------
+            int time = ARITH_TRAINING_TIMEOUT * 1000;
             pb_timer.setMax(time / 1000);
+
+            //Training Count down timer
             new CountDownTimer(time, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -170,10 +176,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
                 @Override
                 public void onFinish() {
-                    fileWriter.get().addAnnotationString(0, "Practice to Break");
-                    Log.d(TAG, "Arithmetic Training Session Ended");
-                    Log.d(TAG, "Break Session Started!");
+
+                    fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_training_end));
+                    Log.d(TAG, getString(R.string.anno_arith_training_end));
                     pb_timer.setProgress(0);
+
+                    Log.d(TAG, "Break Session Started!");
 
                     //Calculate time taken for each question for the Test later.
                     long total_time_taken = 0;
@@ -254,14 +262,63 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         }
     };
 
+    /**
+     * Start of Arithmetic Test Session
+     */
     private Runnable arith_test_session = new Runnable() {
         @Override
         public void run() {
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
+            initUI();
+
+            pb_qsn_timeout.setVisibility(View.VISIBLE);
+//            pb_qsn_timeout.setProgress(100);
+            tv_arith_question.setText(generate_questions());
+            cdt_repeat();
+
+
+            int time = ARITH_TEST_TIMEOUT * 1000;
+            // Timer the test session
+            new CountDownTimer(time, 1000) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    // Do nothing on tick
+                }
+
+                public void onFinish() {
+                    // todo New dialog saying completed
+                    cdt_qsn.cancel();
+                    Log.d(TAG, "LOLOLOLOL");
+                }
+            }.start();
+
 
         }
     };
+
+    private void cdt_repeat() {
+//        cdt_qsn.cancel();
+
+        pb_qsn_timeout.setMax((int) avg_time_taken / 1000);
+
+        cdt_qsn = new CountDownTimer(4000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int progress = (int) (millisUntilFinished / 100);
+                pb_qsn_timeout.setProgress(progress);
+            }
+
+            @Override
+            public void onFinish() {
+                Log.d(TAG, "finish CDT nested!");
+                cdt_repeat();
+            }
+        };
+
+        cdt_qsn.start();
+    }
 
     private String generate_questions() {
         Random r = new Random();
@@ -413,8 +470,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         setContentView(R.layout.arithmetic_task);
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
         tv_arith_question = findViewById(R.id.arith_question);
-        pb_timer = findViewById(R.id.timer_progressbar);
+        pb_timer = findViewById(R.id.pb_task_timer);
         tv_qn_feedback = findViewById(R.id.qsn_feedback);
+        pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
 
         userTimeTaken = new ArrayList<>();
 
@@ -476,7 +534,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 muse = availableMuse.get(position);
                 connect_to_muse();
 
-                start_arithmetic_test_dialog();
+                start_arithmetic_training_dialog();
                 // Thread to update UI
 //                handler.post(tickUi);
             }
@@ -609,7 +667,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             @Override
             public void run() {
                 // Update the UI with the change in connection state.
-                final TextView statusText = (TextView) findViewById(R.id.con_status);
+                final TextView statusText = findViewById(R.id.con_status);
                 statusText.setText(status);
 
             }

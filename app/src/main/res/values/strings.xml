@@ -24,22 +24,30 @@
     <string name="permission_dialog_understand">I Understand</string>
 
     <string name="museconnection_title">Choose your Muse Device to use!</string>
+    <string name="tv_muse_connection_title"> Muse: </string>
+    <string name="tv_muse_unk"> Unknown </string>
+    <string name="tv_muse_connected"> Connected </string>
 
-    <string name="record_data"> EEG Data Recording  </string>
+    <string name="record_data"> EEG Data Recording </string>
 
     <string name="start_rec"> Start Recording </string>
     <string name="stop_rec"> Stop Recording </string>
 
-    <string name="p1_instr_1"> Please </string>
+    <string name="btn_0"> 0 </string>
+    <string name="btn_1"> 1 </string>
+    <string name="btn_2"> 2 </string>
+    <string name="btn_3"> 3 </string>
+    <string name="btn_4"> 4 </string>
+    <string name="btn_5"> 5 </string>
+    <string name="btn_6"> 6 </string>
+    <string name="btn_7"> 7 </string>
+    <string name="btn_8"> 8 </string>
+    <string name="btn_9"> 9 </string>
 
-    <string name="dialog_arith_training_title"> Instruction </string>
-    <string name="dialog_arith_training_instruction">
-        1. Arithmetic Training (3 Minutes) \n
-        2. Break\n
-        3. Guided Meditation (10 Minutes) \n
-        4. Break\n
-        5. Arithmetic Test (3 Minutes)  \n
-    </string>
+    <string name="p1_instr_1"> Please asdasdasdasdasdsaad </string>
+
+    <string name="dialog_arith_training_title">Instruction</string>
+    <string name="dialog_arith_training_instruction">1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n</string>
 
 
     <string name="dialog_break_title"> Break </string>
@@ -47,8 +55,10 @@
     <string name="dialog_break_btn_positive"> Begin Guided Meditation </string>
 
     <string name="dialog_guided_meditation_title"> Guided Meditation Completed </string>
-    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation. Tap continue to start the Arithmetic Test!   </string>
+    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation.\n Tap continue to start the Arithmetic Test!   </string>
     <string name="dialog_guided_meditation_btn_pos"> Continue to Arithmetic Test </string>
 
-    <string name="tv_activity_instr"> hello change this lolol </string>
+    <string name="tv_activity_training_instr"> Current Task: Arithmetic Training </string>
+    <string name="tv_activity_guided_meditation_instr"> Current Task: Guided Meditation </string>
+    <string name="tv_activity_test_instr"> Current Task: Arithmetic Test </string>
 </resources>
