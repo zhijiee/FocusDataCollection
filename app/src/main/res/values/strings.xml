@@ -44,18 +44,21 @@
     <string name="btn_8"> 8 </string>
     <string name="btn_9"> 9 </string>
 
+    <string name="tv_feedback_correct"> Correct! </string>
+    <string name="tv_feedback_wrong"> Wrong! </string>
+    <string name="tv_feedback_timeout"> Timeout! </string>
+
     <string name="p1_instr_1"> Please asdasdasdasdasdsaad </string>
 
     <string name="dialog_arith_training_title">Instruction</string>
     <string name="dialog_arith_training_instruction">1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n</string>
-
 
     <string name="dialog_break_title"> Break </string>
     <string name="dialog_break_msg"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
     <string name="dialog_break_btn_positive"> Begin Guided Meditation </string>
 
     <string name="dialog_guided_meditation_title"> Guided Meditation Completed </string>
-    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation.\n Tap continue to start the Arithmetic Test!   </string>
+    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation.\n Tap continue to start the Arithmetic Test! </string>
     <string name="dialog_guided_meditation_btn_pos"> Continue to Arithmetic Test </string>
 
     <string name="tv_activity_training_instr"> Current Task: Arithmetic Training </string>

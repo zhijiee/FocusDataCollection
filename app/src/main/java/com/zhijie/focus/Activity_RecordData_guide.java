@@ -1,7 +1,3 @@
-/**
- * Example of using libmuse library on android.
- * Interaxon, Inc. 2016
- */
 
 package com.zhijie.focus;
 
@@ -63,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 4. Press "Refresh". It should display all paired Muses in the Spinner drop down at the
  * top of the screen.  It may take a few seconds for the headband to be detected.
  * 5. Select the headband you want to connect to and press "Connect".
- * 6. You should see EEG and accelerometer data as well as connection status,
+ * 6. You should see EEG and accelerometer data as well as connection muse_status,
  * version information and relative alpha values appear on the screen.
  * 7. You can pause/resume data transmission with the button at the bottom of the screen.
  * 8. To disconnect from the headband, press "Disconnect"
@@ -396,11 +392,11 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
             @Override
             public void run() {
 
-                final TextView statusText = (TextView) findViewById(R.id.con_status);
+                final TextView statusText = findViewById(R.id.con_status);
                 statusText.setText(status);
 
                 final MuseVersion museVersion = muse.getMuseVersion();
-                final TextView museVersionText = (TextView) findViewById(R.id.version);
+                final TextView museVersionText = findViewById(R.id.version);
                 // If we haven't yet connected to the headband, the version information
                 // will be null.  You have to connect to the headband before either the
                 // MuseVersion or MuseConfiguration information is known.
@@ -506,17 +502,17 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
      */
     private void initUI() {
         setContentView(R.layout.record_data);
-        Button refreshButton = (Button) findViewById(R.id.refresh);
+        Button refreshButton = findViewById(R.id.refresh);
         refreshButton.setOnClickListener(this);
-        Button connectButton = (Button) findViewById(R.id.connect);
+        Button connectButton = findViewById(R.id.connect);
         connectButton.setOnClickListener(this);
-        Button disconnectButton = (Button) findViewById(R.id.disconnect);
+        Button disconnectButton = findViewById(R.id.disconnect);
         disconnectButton.setOnClickListener(this);
-        Button pauseButton = (Button) findViewById(R.id.pause);
+        Button pauseButton = findViewById(R.id.pause);
         pauseButton.setOnClickListener(this);
 
         spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
-        Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
+        Spinner musesSpinner = findViewById(R.id.muses_spinner);
         musesSpinner.setAdapter(spinnerAdapter);
     }
 
@@ -525,19 +521,19 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
      * from the buffers.
      */
     private void updateAccel() {
-        TextView acc_x = (TextView) findViewById(R.id.acc_x);
-        TextView acc_y = (TextView) findViewById(R.id.acc_y);
-        TextView acc_z = (TextView) findViewById(R.id.acc_z);
+        TextView acc_x = findViewById(R.id.acc_x);
+        TextView acc_y = findViewById(R.id.acc_y);
+        TextView acc_z = findViewById(R.id.acc_z);
         acc_x.setText(String.format("%6.2f", accelBuffer[0]));
         acc_y.setText(String.format("%6.2f", accelBuffer[1]));
         acc_z.setText(String.format("%6.2f", accelBuffer[2]));
     }
 
     private void updateEeg() {
-        TextView tp9 = (TextView) findViewById(R.id.eeg_tp9);
-        TextView fp1 = (TextView) findViewById(R.id.eeg_af7);
-        TextView fp2 = (TextView) findViewById(R.id.eeg_af8);
-        TextView tp10 = (TextView) findViewById(R.id.eeg_tp10);
+        TextView tp9 = findViewById(R.id.eeg_tp9);
+        TextView fp1 = findViewById(R.id.eeg_af7);
+        TextView fp2 = findViewById(R.id.eeg_af8);
+        TextView tp10 = findViewById(R.id.eeg_tp10);
         tp9.setText(String.format("%6.2f", eegBuffer[0]));
         fp1.setText(String.format("%6.2f", eegBuffer[1]));
         fp2.setText(String.format("%6.2f", eegBuffer[2]));

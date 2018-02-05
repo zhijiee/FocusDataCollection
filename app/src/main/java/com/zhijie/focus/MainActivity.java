@@ -1,8 +1,3 @@
-/**
- * Example of using libmuse library on android.
- * Interaxon, Inc. 2016
- */
-
 package com.zhijie.focus;
 
 import android.app.Activity;
@@ -15,13 +10,13 @@ import android.widget.Button;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-    private final String TAG = "TestLibMuseAndroid";
+    private final String TAG = "Main_Activity!";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button recordData = (Button) findViewById(R.id.refresh);
+        Button recordData = findViewById(R.id.refresh);
         recordData.setOnClickListener(this);
 
     }

@@ -28,7 +28,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:textSize="16sp"
-        android:text="Current Task: "
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pb_task_timer" />
@@ -42,7 +42,6 @@
         android:layout_marginStart="38dp"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="Question"
         android:textSize="32sp"
         app:layout_constraintBottom_toTopOf="@+id/qsn_feedback"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +67,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
-        android:text="Correct!"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/ans2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,7 +78,7 @@
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16sp"
+        android:layout_marginRight="16dp"
         android:text="@string/btn_1"
         app:layout_constraintBaseline_toBaselineOf="@+id/ans2"
         app:layout_constraintEnd_toStartOf="@+id/ans2" />
@@ -187,7 +185,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:layout_marginRight="2dp"
-        android:text="Muse:"
+        android:text="@string/tv_muse_connection_title"
         app:layout_constraintBaseline_toBaselineOf="@+id/con_status"
         app:layout_constraintEnd_toStartOf="@+id/con_status" />
 
@@ -198,7 +196,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
-        android:text="Unknown"
+        android:text="@string/undefined"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -1,8 +1,3 @@
-/**
- * Example of using libmuse library on android.
- * Interaxon, Inc. 2016
- */
-
 package com.zhijie.focus;
 
 import android.app.Activity;
@@ -46,8 +41,12 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
+import Models.ArithmeticTraining;
 import bsh.EvalError;
 import bsh.Interpreter;
+
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
 
 /*
     TODO: Create Spinner while connecting
@@ -55,15 +54,19 @@ import bsh.Interpreter;
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
     //Global Variables
-    private final int ARITH_TRAINING_TIMEOUT = 3; //TODO CHANGE THE TIME BACK to 3 minutes!
+
+    // TODO Change the timing Variables, 3 Min, 3 Min
+    private final int ARITH_TRAINING_TIMEOUT = 1;
     private final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
-    private final int ARITH_TEST_TIMEOUT = 10; //TODO change this
+    private final int ARITH_TEST_TIMEOUT = 180;
+    private final int cd_interval = 1;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
 
     private final AtomicReference<Handler> fileHandler = new AtomicReference<>();
     private final AtomicReference<MuseFileWriter> fileWriter = new AtomicReference<>();
+
     private final double[] eegBuffer = new double[6];
     private final double[] alphaBuffer = new double[6];
     private final double[] accelBuffer = new double[3];
@@ -73,21 +76,27 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private MuseManagerAndroid manager;
     private DataListener dataListener; // Receive packets from connected band
     private ConnectionListener connectionListener; //Headband connection Status
+    private ArithmeticTraining arithmeticTraining;
+    String muse_status;
 
-    private boolean recording = false;
+    private boolean is_recording = false;
+    private boolean is_arith_test = false;
 
     private Context context;
 
     private TextView tv_current_activity_instr;
     private TextView tv_arith_question;
     private TextView tv_qn_feedback;
+    private TextView tv_muse_status;
     private ProgressBar pb_timer;
     private ProgressBar pb_qsn_timeout;
 
     private int answer;
+    private int num_consecutive_correct = 0;
     private List<Long> userTimeTaken;
     private long question_start_time;
     private long avg_time_taken;
+
 
     private CountDownTimer cdt_qsn;
 
@@ -117,11 +126,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     }
 
-    //TODO Called when question timeout
-    private void timeout() {
-
-    }
-
     /* Test Sequences */
     private void start_arithmetic_training_dialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -129,12 +133,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 .setMessage(R.string.dialog_arith_training_instruction);
         builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                is_arith_test = false; //Set false
                 // Start Recording Data
                 initFileWriter();
                 fileWriter.get().addAnnotationString(0, "Recording Started");
-                recording = true;
+                is_recording = true;
                 handler.post(arith_training_session);
-                Log.d(TAG, "Start EEG Recording to file!");
             }
         });
 
@@ -157,21 +161,19 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             Log.d(TAG, "Arithmetic Training Session Started!");
-            handler.post(arith_training_ui_update); //Begin UI Updates
             tv_current_activity_instr.setText(R.string.tv_activity_training_instr);
 
             // Set Timer for Training session, When time ended --> Break
 
             int time = ARITH_TRAINING_TIMEOUT * 1000;
-            pb_timer.setMax(time / 1000);
+            pb_timer.setMax(time / cd_interval);
 
             //Training Count down timer
-            new CountDownTimer(time, 1000) {
+            new CountDownTimer(time, cd_interval) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-                    int progress = (int) (millisUntilFinished / 1000);
+                    int progress = (int) (millisUntilFinished / cd_interval);
                     pb_timer.setProgress(progress);
-                    //TODO Create new text timer display
                 }
 
                 @Override
@@ -181,8 +183,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     Log.d(TAG, getString(R.string.anno_arith_training_end));
                     pb_timer.setProgress(0);
 
-                    Log.d(TAG, "Break Session Started!");
-
                     //Calculate time taken for each question for the Test later.
                     long total_time_taken = 0;
                     for (int i = 0; i < userTimeTaken.size(); i++) {
@@ -190,7 +190,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     }
 
                     if (userTimeTaken.size() == 0) {
-                        avg_time_taken = total_time_taken;
+                        avg_time_taken = 9000;
                     } else {
                         avg_time_taken = total_time_taken / userTimeTaken.size();
                     }
@@ -202,7 +202,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                             .setTitle(R.string.dialog_break_title);
                     builder.setPositiveButton(R.string.dialog_break_btn_positive, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            question_start_time = System.currentTimeMillis();
                             //Begin Guided Meditation
                             handler.post(guided_meditation_session);
                         }
@@ -216,7 +215,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }.start();
 
             tv_arith_question.setText(generate_questions());
-            question_start_time = System.currentTimeMillis();
 
 
         }
@@ -232,9 +230,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             Log.d(TAG, getString(R.string.anno_guided_meditation_begin));
             setContentView(R.layout.guided_meditation);
 
-            MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
-            mp.start();
 
+            MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -259,6 +256,24 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
                 }
             });
+            pb_timer = findViewById(R.id.pb_timer);
+            long time = mp.getDuration();
+            Log.d(TAG, "Dur" + mp.getDuration());
+            pb_timer.setMax(mp.getDuration() / cd_interval);
+            CountDownTimer a = new CountDownTimer(time, cd_interval) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    int progress = (int) millisUntilFinished / cd_interval;
+                    pb_timer.setProgress(progress);
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            }.start();
+
+            mp.start();
         }
     };
 
@@ -271,6 +286,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
             initUI();
+            tv_muse_status.setText(muse_status);
+            tv_current_activity_instr.setText(R.string.tv_activity_test_instr);
+            is_arith_test = true;
 
             pb_qsn_timeout.setVisibility(View.VISIBLE);
 //            pb_qsn_timeout.setProgress(100);
@@ -279,40 +297,47 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
 
             int time = ARITH_TEST_TIMEOUT * 1000;
+            pb_timer.setMax(time / cd_interval);
             // Timer the test session
-            new CountDownTimer(time, 1000) {
+            new CountDownTimer(time, cd_interval) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {
                     // Do nothing on tick
+                    int progress = (int) (millisUntilFinished / cd_interval);
+                    pb_timer.setProgress(progress);
                 }
 
                 public void onFinish() {
-                    // todo New dialog saying completed
+                    pb_qsn_timeout.setProgress(0);
                     cdt_qsn.cancel();
-                    Log.d(TAG, "LOLOLOLOL");
+                    fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_end));
+                    Log.d(TAG, getString(R.string.anno_arith_test_end));
                 }
             }.start();
-
-
         }
     };
 
     private void cdt_repeat() {
-//        cdt_qsn.cancel();
 
-        pb_qsn_timeout.setMax((int) avg_time_taken / 1000);
+        if (cdt_qsn != null)
+            cdt_qsn.cancel();
 
-        cdt_qsn = new CountDownTimer(4000, 1000) {
+        pb_qsn_timeout.setMax((int) avg_time_taken / cd_interval);
+        pb_qsn_timeout.setProgress((int) avg_time_taken);
+        cdt_qsn = new CountDownTimer(avg_time_taken, cd_interval) {
             @Override
             public void onTick(long millisUntilFinished) {
-                int progress = (int) (millisUntilFinished / 100);
+                int progress = (int) (millisUntilFinished / cd_interval);
                 pb_qsn_timeout.setProgress(progress);
             }
 
             @Override
             public void onFinish() {
-                Log.d(TAG, "finish CDT nested!");
+                tv_qn_feedback.setText(R.string.tv_feedback_timeout);
+                tv_qn_feedback.setTextColor(RED);
+                answered_consecutive_helper(-1);
+                tv_arith_question.setText(generate_questions());
                 cdt_repeat();
             }
         };
@@ -335,7 +360,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         eqn = a + b + c + d;
         answer = eval(a + b + c + d);
-        Log.d(TAG, eqn + "\n" + "Ans: " + answer);
+        Log.d(TAG, eqn + " = " + answer);
+
+        question_start_time = System.currentTimeMillis(); //Set Start time after question generation
+
         return eqn;
     }
 
@@ -357,7 +385,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         if (final_num) {
             bound = 10;
         } else {
-            bound = 99;
+            bound = 100;
         }
 
         if (curr < 10) {
@@ -437,39 +465,78 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
 
         }
+
         answer_question(user_input);
     }
 
     private void answer_question(int user_input) {
         if (user_input == answer) {
-            tv_qn_feedback.setText("Correct!!");
+            tv_qn_feedback.setTextColor(GREEN);
+            tv_qn_feedback.setText(R.string.tv_feedback_correct);
         } else {
-            tv_qn_feedback.setText("Wrong!!!!");
+            tv_qn_feedback.setTextColor(RED);
+            tv_qn_feedback.setText(R.string.tv_feedback_wrong);
+
+        }
+        // For Arithmetic Test
+        if (is_arith_test) {
+
+            answered_consecutive_helper(user_input);
+
+            cdt_repeat();
+
+
         }
 
-        userTimeTaken.add(System.currentTimeMillis() - question_start_time); // Record user time taken in milliseconds.
-        Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
+        // For Arithmetic Training
+        if (!is_arith_test) {
+            // Record user time taken in milliseconds.
+            userTimeTaken.add(System.currentTimeMillis() - question_start_time);
+            Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
+        }
 
         tv_arith_question.setText(generate_questions());
-        question_start_time = System.currentTimeMillis();
 
     }
 
+    private void answered_consecutive_helper(int user_input) {
+        if (user_input == answer) { // User answer question correctly
 
-    // TODO UPDATE PROGRESS BAR
-    // TODO UPDATE TIMER COUNTDOWN
-    private Runnable arith_training_ui_update = new Runnable() {
-        @Override
-        public void run() {
-            handler.postDelayed(arith_training_ui_update, 1000 / 60);
+            if (num_consecutive_correct < 0) //If previous answered wrongly
+                num_consecutive_correct = 1;
+            else
+                num_consecutive_correct++; // Previously correct, increment
+
+        } else { //User answered the question wrongly
+            if (num_consecutive_correct > 0) { //If previously answered correctly
+                Log.d(TAG, "num:" + num_consecutive_correct);
+                num_consecutive_correct = -1;
+            } else {
+                Log.d(TAG, "num:" + num_consecutive_correct);
+                num_consecutive_correct--;
+            }
         }
-    };
+        // Increase or decrease the time taken with 3 consecutively correct or wrong.
+        long timeChange = avg_time_taken / 10;
+        if (num_consecutive_correct <= -3) {
+//            Log.d(TAG, "old_avg:" + avg_time_taken);
+            avg_time_taken += timeChange;
+//            Log.d(TAG, "new_avg:" + avg_time_taken);
+
+        } else if (num_consecutive_correct >= 3) {
+//            Log.d(TAG, "old_avg:" + avg_time_taken);
+            avg_time_taken -= timeChange;
+//            Log.d(TAG, "new_avg:" + avg_time_taken);
+        }
+
+    }
 
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
         tv_arith_question = findViewById(R.id.arith_question);
+        tv_muse_status = findViewById(R.id.con_status);
         pb_timer = findViewById(R.id.pb_task_timer);
         tv_qn_feedback = findViewById(R.id.qsn_feedback);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
@@ -505,10 +572,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 //        start_record_btn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                if (recording) {
+//                if (is_recording) {
 //                    // Stop Recording and save file
 //                    saveFile();
-//                    recording = false;
+//                    is_recording = false;
 //                    start_record_btn.setText(R.string.start_rec);
 //
 //                }
@@ -660,15 +727,15 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         final ConnectionState current = p.getCurrentConnectionState();
 
         // Format a message to show the change of connection state in the UI.
-        final String status = current.toString();
-        Log.i(TAG, "Muse Connection Status: " + status);
+        muse_status = current.toString();
+        Log.i(TAG, "Muse Connection Status: " + muse_status);
 
         handler.post(new Runnable() {
             @Override
             public void run() {
                 // Update the UI with the change in connection state.
-                final TextView statusText = findViewById(R.id.con_status);
-                statusText.setText(status);
+//                final TextView statusText = findViewById(R.id.con_status);
+                tv_muse_status.setText(muse_status);
 
             }
         });
@@ -720,8 +787,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
      */
     public void receiveMuseDataPacket(final MuseDataPacket p, final Muse muse) {
 
-        // Write to file when recording started
-        if (recording) {
+        // Write to file when is_recording started
+        if (is_recording) {
             writeDataPacketToFile(p);
         }
         // valuesSize returns the number of data values contained in the packet.
@@ -739,9 +806,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 assert (alphaBuffer.length >= n);
                 getEegChannelValues(alphaBuffer, p);
                 break;
+            case HSI_PRECISION:
+                assert (alphaBuffer.length >= n);
+//                getHSIPrecision(); //TODO GET HSI PRECISION VALUE
+                break;
             case BATTERY:
             case DRL_REF:
             case QUANTIZATION:
+
             default:
                 break;
         }
@@ -767,7 +839,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     public void onBackPressed() {
 
         // TODO: Prompt dialog to ask if really want to exit
-//        if (recording) {
+//        if (is_recording) {
 //            Toast.makeText(context, "Recording in Progress", Toast.LENGTH_SHORT).show();
 //        } else {
 //            // Disconnect Muse when returning to previous activity.
