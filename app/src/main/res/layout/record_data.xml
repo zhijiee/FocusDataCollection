@@ -79,10 +79,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Muse:"
-        android:layout_toLeftOf="@id/con_status" />
+        android:layout_toLeftOf="@id/tv_muse_status" />
 
     <TextView
-        android:id="@+id/con_status"
+        android:id="@+id/tv_muse_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

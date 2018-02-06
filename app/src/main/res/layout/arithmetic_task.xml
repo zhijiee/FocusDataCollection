@@ -186,11 +186,11 @@
         android:layout_marginEnd="2dp"
         android:layout_marginRight="2dp"
         android:text="@string/tv_muse_connection_title"
-        app:layout_constraintBaseline_toBaselineOf="@+id/con_status"
-        app:layout_constraintEnd_toStartOf="@+id/con_status" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_muse_status"
+        app:layout_constraintEnd_toStartOf="@+id/tv_muse_status" />
 
     <TextView
-        android:id="@+id/con_status"
+        android:id="@+id/tv_muse_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"

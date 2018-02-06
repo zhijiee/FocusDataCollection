@@ -41,7 +41,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
-import Models.ArithmeticTraining;
 import bsh.EvalError;
 import bsh.Interpreter;
 
@@ -56,10 +55,11 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     //Global Variables
 
     // TODO Change the timing Variables, 3 Min, 3 Min
-    private final int ARITH_TRAINING_TIMEOUT = 1;
-    private final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
-    private final int ARITH_TEST_TIMEOUT = 180;
-    private final int cd_interval = 1;
+    private static final int ARITH_TRAINING_TIMEOUT = 1;
+    private static final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
+    private static final int ARITH_TEST_TIMEOUT = 180;
+    private static final int cd_interval = 1;
+    private static final int MUSE_STABLE_TIME = 3;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -70,17 +70,19 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private final double[] eegBuffer = new double[6];
     private final double[] alphaBuffer = new double[6];
     private final double[] accelBuffer = new double[3];
+    private final double[] hsiBuffer = new double[4];
 
     AlertDialog dialog;
     private Muse muse;
     private MuseManagerAndroid manager;
     private DataListener dataListener; // Receive packets from connected band
     private ConnectionListener connectionListener; //Headband connection Status
-    private ArithmeticTraining arithmeticTraining;
+    //    private ArithmeticTraining arithmeticTraining;
     String muse_status;
 
     private boolean is_recording = false;
     private boolean is_arith_test = false;
+    private boolean is_muse_stable = false;
 
     private Context context;
 
@@ -97,7 +99,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private long question_start_time;
     private long avg_time_taken;
 
-
+    private CountDownTimer cdt_muse_stable;
     private CountDownTimer cdt_qsn;
 
     @Override
@@ -115,24 +117,26 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
 
-        //TODO Uncomment this when going to test with MUSE
+        //TODO Uncomment, MUSE CONNECTION
         // Connect Muse Activity
-//        Intent i = new Intent(this, Activity_Connect_Muse.class);
-//        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+        Intent i = new Intent(this, Activity_Connect_Muse.class);
+        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
 
-        start_arithmetic_training_dialog(); //TODO REMOVE, FOR TESTING PURPOSES
+//        start_arithmetic_training_dialog(); //TODO REMOVE, MUSE CONNECTION
 
         initUI(); // Init UI Elements
 
     }
 
-    /* Test Sequences */
+    /* Begin Arithmetic Training Session Dialogue */
     private void start_arithmetic_training_dialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.dialog_arith_training_title)
                 .setMessage(R.string.dialog_arith_training_instruction);
+
         builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+
                 is_arith_test = false; //Set false
                 // Start Recording Data
                 initFileWriter();
@@ -147,11 +151,62 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
+        cdt_muse_stable();
+        handler.post(update_hsi_for_dialog);
         //TODO UNCOMMENT THIS MUSE CONNECTION
-//        (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
-//                .setEnabled(false);
 
+    }
+
+    private Runnable update_hsi_for_dialog = new Runnable() {
+        @Override
+        public void run() {
+            int a[] = new int[6];
+            boolean muse_good_connection = true;
+
+            for (int i = 0; i < hsiBuffer.length; i++) {
+                a[i] = (int) hsiBuffer[i];
+                if (a[i] != 1) {
+                    muse_good_connection = false;
+                }
+            }
+
+            if (muse_good_connection) {
+                cdt_muse_stable();
+            } else {
+                if (cdt_muse_stable != null) {
+                    cdt_muse_stable.cancel();
+                    cdt_muse_stable = null;
+                }
+            }
+
+
+            String msg = getString(R.string.dialog_arith_training_instruction, a[0], a[1], a[2], a[3]);
+            dialog.setMessage(msg);
+
+
+            if (is_muse_stable) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+            } else {
+                handler.postDelayed(update_hsi_for_dialog, 1000 / 100);
+            }
+        }
+    };
+
+    private void cdt_muse_stable() {
+        long time = MUSE_STABLE_TIME * 1000;
+        cdt_muse_stable = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                is_muse_stable = true;
+            }
+        }.start();
     }
 
     /**
@@ -229,6 +284,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_guided_meditation_begin));
             Log.d(TAG, getString(R.string.anno_guided_meditation_begin));
             setContentView(R.layout.guided_meditation);
+            tv_muse_status = findViewById(R.id.tv_muse_status);
 
 
             MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
@@ -260,7 +316,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             long time = mp.getDuration();
             Log.d(TAG, "Dur" + mp.getDuration());
             pb_timer.setMax(mp.getDuration() / cd_interval);
-            CountDownTimer a = new CountDownTimer(time, cd_interval) {
+
+            // TODO confirm this is correct
+            new CountDownTimer(time, cd_interval) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     int progress = (int) millisUntilFinished / cd_interval;
@@ -482,9 +540,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         if (is_arith_test) {
 
             answered_consecutive_helper(user_input);
-
             cdt_repeat();
-
 
         }
 
@@ -519,14 +575,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         // Increase or decrease the time taken with 3 consecutively correct or wrong.
         long timeChange = avg_time_taken / 10;
         if (num_consecutive_correct <= -3) {
-//            Log.d(TAG, "old_avg:" + avg_time_taken);
             avg_time_taken += timeChange;
-//            Log.d(TAG, "new_avg:" + avg_time_taken);
 
         } else if (num_consecutive_correct >= 3) {
-//            Log.d(TAG, "old_avg:" + avg_time_taken);
             avg_time_taken -= timeChange;
-//            Log.d(TAG, "new_avg:" + avg_time_taken);
         }
 
     }
@@ -536,7 +588,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         setContentView(R.layout.arithmetic_task);
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
         tv_arith_question = findViewById(R.id.arith_question);
-        tv_muse_status = findViewById(R.id.con_status);
+        tv_muse_status = findViewById(R.id.tv_muse_status);
         pb_timer = findViewById(R.id.pb_task_timer);
         tv_qn_feedback = findViewById(R.id.qsn_feedback);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
@@ -617,6 +669,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
         muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
         muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+        muse.registerDataListener(dataListener, MuseDataPacketType.HSI_PRECISION);
+        muse.registerDataListener(dataListener, MuseDataPacketType.IS_GOOD);
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();
@@ -770,8 +824,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         } else if (current == ConnectionState.CONNECTED) {
 //            start_record_btn.setEnabled(true);
-            (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
-                    .setEnabled(true);
+            //todo remove this soon
+//            (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
+//                    .setEnabled(true);
 
         }
     }
@@ -808,7 +863,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 break;
             case HSI_PRECISION:
                 assert (alphaBuffer.length >= n);
-//                getHSIPrecision(); //TODO GET HSI PRECISION VALUE
+                getHSIPrecision(hsiBuffer, p);
                 break;
             case BATTERY:
             case DRL_REF:
@@ -817,6 +872,13 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             default:
                 break;
         }
+    }
+
+    private void getHSIPrecision(double[] buffer, MuseDataPacket p) {
+        buffer[0] = p.getEegChannelValue(Eeg.EEG1);
+        buffer[1] = p.getEegChannelValue(Eeg.EEG2);
+        buffer[2] = p.getEegChannelValue(Eeg.EEG3);
+        buffer[3] = p.getEegChannelValue(Eeg.EEG4);
     }
 
     private void getEegChannelValues(double[] buffer, MuseDataPacket p) {

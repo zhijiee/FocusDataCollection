@@ -392,7 +392,7 @@ public class Activity_RecordData_guide extends Activity implements OnClickListen
             @Override
             public void run() {
 
-                final TextView statusText = findViewById(R.id.con_status);
+                final TextView statusText = findViewById(R.id.tv_muse_status);
                 statusText.setText(status);
 
                 final MuseVersion museVersion = muse.getMuseVersion();

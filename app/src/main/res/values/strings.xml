@@ -28,7 +28,8 @@
     <string name="tv_muse_unk"> Unknown </string>
     <string name="tv_muse_connected"> Connected </string>
 
-    <string name="record_data"> EEG Data Recording </string>
+    <string name="record_data"> Start EEG Recording </string>
+    <string name="name"> Name </string>
 
     <string name="start_rec"> Start Recording </string>
     <string name="stop_rec"> Stop Recording </string>
@@ -48,10 +49,9 @@
     <string name="tv_feedback_wrong"> Wrong! </string>
     <string name="tv_feedback_timeout"> Timeout! </string>
 
-    <string name="p1_instr_1"> Please asdasdasdasdasdsaad </string>
-
-    <string name="dialog_arith_training_title">Instruction</string>
-    <string name="dialog_arith_training_instruction">1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n</string>
+    <string name="dialog_arith_training_title">Instruction for Data Recording </string>
+    <string name="dialog_arith_training_instruction">"Sequence of Events\n1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n\nAdjust your headband until all connections are 1 or 2 before beginning!
+        \n\nEEG1: %1$d \nEEG2: %2$d \nEEG3: %3$d \nEEG4: %4$d"</string>
 
     <string name="dialog_break_title"> Break </string>
     <string name="dialog_break_msg"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
