@@ -25,11 +25,12 @@
 
     <string name="museconnection_title">Choose your Muse Device to use!</string>
     <string name="tv_muse_connection_title"> Muse: </string>
-    <string name="tv_muse_unk"> Unknown </string>
+    <!--<string name="tv_muse_unk"> Unknown </string>-->
     <string name="tv_muse_connected"> Connected </string>
 
     <string name="record_data"> Start EEG Recording </string>
     <string name="name"> Name </string>
+    <string name="enter_name"> Please enter a name! </string>
 
     <string name="start_rec"> Start Recording </string>
     <string name="stop_rec"> Stop Recording </string>

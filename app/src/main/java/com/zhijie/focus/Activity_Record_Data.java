@@ -93,6 +93,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private ProgressBar pb_timer;
     private ProgressBar pb_qsn_timeout;
 
+    private String name;
     private int answer;
     private int num_consecutive_correct = 0;
     private List<Long> userTimeTaken;
@@ -110,6 +111,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         // Load the Muse Library
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
+
+        Intent intent = getIntent();
+        name = intent.getStringExtra("name");
 
         // Setup Callback
         WeakReference<Activity_Record_Data> weakActivity =
@@ -681,7 +685,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
      * -------------------- Begin File I/O --------------------------
      */
     private void initFileWriter() {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
+        SimpleDateFormat formatter = new SimpleDateFormat(name + "dd_MM_yyyy_HH_mm_ss", Locale.US);
         Date now = new Date();
         String fileName = formatter.format(now) + ".muse";
 
