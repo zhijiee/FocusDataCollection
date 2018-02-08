@@ -28,7 +28,7 @@
     <!--<string name="tv_muse_unk"> Unknown </string>-->
     <string name="tv_muse_connected"> Connected </string>
 
-    <string name="record_data"> Start EEG Recording </string>
+    <string name="record_data"> Start </string>
     <string name="name"> Name </string>
     <string name="enter_name"> Please enter a name! </string>
 
@@ -53,6 +53,7 @@
     <string name="dialog_arith_training_title">Instruction for Data Recording </string>
     <string name="dialog_arith_training_instruction">"Sequence of Events\n1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n\nAdjust your headband until all connections are 1 or 2 before beginning!
         \n\nEEG1: %1$d \nEEG2: %2$d \nEEG3: %3$d \nEEG4: %4$d"</string>
+    <string name="dialog_arith_training_btn_pos"> Begin Arithmetic Training! </string>
 
     <string name="dialog_break_title"> Break </string>
     <string name="dialog_break_msg"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
@@ -62,7 +63,13 @@
     <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation.\n Tap continue to start the Arithmetic Test! </string>
     <string name="dialog_guided_meditation_btn_pos"> Continue to Arithmetic Test </string>
 
+    <string name="dialog_arith_complete_title"> The Test is now complete! </string>
+    <string name="dialog_arith_complete_message"> You have completed the data recording. Thank you! Tap on Finish to exit!! </string>
+    <string name="dialog_arith_complete_btn_pos"> Finish! </string>
+
     <string name="tv_activity_training_instr"> Current Task: Arithmetic Training </string>
     <string name="tv_activity_guided_meditation_instr"> Current Task: Guided Meditation </string>
     <string name="tv_activity_test_instr"> Current Task: Arithmetic Test </string>
+
+
 </resources>

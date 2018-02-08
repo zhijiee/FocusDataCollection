@@ -42,13 +42,12 @@ public class Activity_Connect_Muse extends Activity {
         WeakReference<Activity_Connect_Muse> weakActivity =
                 new WeakReference<>(this);
         manager.setMuseListener(new Activity_Connect_Muse.MuseL(weakActivity));
+
         manager.stopListening();
         manager.startListening();
 
         requestPermission();
         initUI();
-
-
 
     }
 
@@ -88,6 +87,12 @@ public class Activity_Connect_Muse extends Activity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        manager.stopListening();
+        finish();
     }
 
     private void requestPermission() {

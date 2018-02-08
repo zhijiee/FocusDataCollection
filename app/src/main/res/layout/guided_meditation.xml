@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:layout_marginRight="2dp"
-        android:text="@string/museconnection_title"
+        android:text="@string/tv_muse_connection_title"
         app:layout_constraintBaseline_toBaselineOf="@+id/tv_muse_status"
         app:layout_constraintEnd_toStartOf="@+id/tv_muse_status" />
 

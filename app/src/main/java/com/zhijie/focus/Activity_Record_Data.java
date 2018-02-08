@@ -55,11 +55,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     //Global Variables
 
     // TODO Change the timing Variables, 3 Min, 3 Min
-    private static final int ARITH_TRAINING_TIMEOUT = 1;
+    private static final int ARITH_TRAINING_TIMEOUT = 30;
     private static final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
-    private static final int ARITH_TEST_TIMEOUT = 180;
+    private static final int ARITH_TEST_TIMEOUT = 30; //180
     private static final int cd_interval = 1;
     private static final int MUSE_STABLE_TIME = 3;
+    private static final boolean USE_MUSE = true;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -78,11 +79,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private DataListener dataListener; // Receive packets from connected band
     private ConnectionListener connectionListener; //Headband connection Status
     //    private ArithmeticTraining arithmeticTraining;
-    String muse_status;
+    private String muse_status;
 
     private boolean is_recording = false;
     private boolean is_arith_test = false;
     private boolean is_muse_stable = false;
+    private boolean EEG_data_collection_not_finished = true;
 
     private Context context;
 
@@ -123,11 +125,13 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         //TODO Uncomment, MUSE CONNECTION
         // Connect Muse Activity
-        Intent i = new Intent(this, Activity_Connect_Muse.class);
-        startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
 
-//        start_arithmetic_training_dialog(); //TODO REMOVE, MUSE CONNECTION
-
+        if (USE_MUSE) {
+            Intent i = new Intent(this, Activity_Connect_Muse.class);
+            startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
+        } else {
+            start_arithmetic_training_dialog(); //TODO REMOVE, MUSE CONNECTION
+        }
         initUI(); // Init UI Elements
 
     }
@@ -138,13 +142,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         builder.setTitle(R.string.dialog_arith_training_title)
                 .setMessage(R.string.dialog_arith_training_instruction);
 
-        builder.setPositiveButton("Begin Test", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.dialog_arith_training_btn_pos, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
                 is_arith_test = false; //Set false
                 // Start Recording Data
                 initFileWriter();
-                fileWriter.get().addAnnotationString(0, "Recording Started");
+
+                fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_training_begin));
                 is_recording = true;
                 handler.post(arith_training_session);
             }
@@ -155,12 +160,13 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
-        cdt_muse_stable();
-        handler.post(update_hsi_for_dialog);
-        //TODO UNCOMMENT THIS MUSE CONNECTION
-
+        //TODO FOR MUSE CONNECTION
+        if (USE_MUSE) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            cdt_muse_stable();
+            handler.post(update_hsi_for_dialog);
+        }
     }
 
     private Runnable update_hsi_for_dialog = new Runnable() {
@@ -295,7 +301,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
+                    fileWriter.get().addAnnotationString(0, getString(R.string.anno_guided_meditation_ended));
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle(R.string.dialog_guided_meditation_title)
                             .setMessage(R.string.dialog_guided_meditation_msg);
@@ -318,10 +324,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             });
             pb_timer = findViewById(R.id.pb_timer);
             long time = mp.getDuration();
-            Log.d(TAG, "Dur" + mp.getDuration());
             pb_timer.setMax(mp.getDuration() / cd_interval);
 
-            // TODO confirm this is correct
             new CountDownTimer(time, cd_interval) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -353,7 +357,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             is_arith_test = true;
 
             pb_qsn_timeout.setVisibility(View.VISIBLE);
-//            pb_qsn_timeout.setProgress(100);
             tv_arith_question.setText(generate_questions());
             cdt_repeat();
 
@@ -371,14 +374,42 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 }
 
                 public void onFinish() {
+                    saveFile();
                     pb_qsn_timeout.setProgress(0);
                     cdt_qsn.cancel();
                     fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_end));
                     Log.d(TAG, getString(R.string.anno_arith_test_end));
+                    start_arithmetic_test_completed();
+
                 }
             }.start();
         }
     };
+
+    private void start_arithmetic_test_completed() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.dialog_arith_complete_title)
+                .setMessage(R.string.dialog_arith_complete_message);
+
+        builder.setPositiveButton(R.string.dialog_arith_complete_btn_pos, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                EEG_data_collection_not_finished = false;
+
+                if (muse != null)
+                    muse.disconnect();
+
+                finish();
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+    }
 
     private void cdt_repeat() {
 
@@ -599,6 +630,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         userTimeTaken = new ArrayList<>();
 
+        muse_status = getString(R.string.undefined);
+
         //Buttons
         Button a0 = findViewById(R.id.ans0);
         Button a1 = findViewById(R.id.ans1);
@@ -660,6 +693,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 start_arithmetic_training_dialog();
                 // Thread to update UI
 //                handler.post(tickUi);
+            } else {
+                finish();
             }
         }
     }
@@ -685,9 +720,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
      * -------------------- Begin File I/O --------------------------
      */
     private void initFileWriter() {
-        SimpleDateFormat formatter = new SimpleDateFormat(name + "dd_MM_yyyy_HH_mm_ss", Locale.US);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
         Date now = new Date();
-        String fileName = formatter.format(now) + ".muse";
+        String fileName = name + "_" + formatter.format(now) + ".muse";
 
         fileHandler.set(new Handler());
         final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
@@ -808,18 +843,21 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
             // We have disconnected from the headband, so set our cached copy to null.
 //            this.muse = null;
-            android.widget.Toast.makeText
-                    (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
 
-            if (muse != null) {
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (muse != null)
-                            connect_to_muse();
-                    }
-                }, 1000);
+            if (EEG_data_collection_not_finished) {
+                android.widget.Toast.makeText
+                        (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
+
+                if (muse != null) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (muse != null)
+                                connect_to_muse();
+                        }
+                    }, 500);
+                }
             }
 
             //            start_record_btn.setEnabled(false);
