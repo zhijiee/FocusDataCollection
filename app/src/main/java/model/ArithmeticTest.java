@@ -2,25 +2,25 @@ package model;
 
 public class ArithmeticTest extends GenericArithmetic {
 
-    private int currentCorrect = 0;
+    String TAG = "ARITHMETIC_TEST_SESSION";
 
     public ArithmeticTest() {
     }
 
     @Override
-    public int calculate_time() {
-        int a = 0;
+    public void recordTime() {
 
+//        answered_consecutive_helper(user_input);
+        cdt_repeat();
+
+    }
+
+    @Override
+    public long calculate_time() {
+        long a = 0;
         return a;
 
     }
 
-    public void incrementCorrect() {
-        if (currentCorrect == 0) {
-            currentCorrect++;
-        } else {
-            currentCorrect = 1;
-        }
 
-    }
 }

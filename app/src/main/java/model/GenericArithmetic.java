@@ -1,9 +1,15 @@
 package model;
 
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.zhijie.focus.R;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import bsh.EvalError;
@@ -12,12 +18,32 @@ import bsh.Interpreter;
 import static android.content.ContentValues.TAG;
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
+import static constants.Constants.cd_interval;
 
 public abstract class GenericArithmetic {
 
-    private TextView tv_qn_feedback;
-    private TextView tv_question;
+    protected TextView tv_qn_feedback;
+    protected TextView tv_question;
 
+    protected int num_consecutive_correct = 0;
+    protected long avg_time_taken;
+    protected List<Long> userTimeTaken;
+
+    protected ProgressBar pb_qsn_timeout;
+
+    public CountDownTimer cdt_qsn;
+
+    public void setCdt_qsn(CountDownTimer cdt_qsn) {
+        this.cdt_qsn = cdt_qsn;
+    }
+
+    public void setAvg_time_taken(long avg_time_taken) {
+        this.avg_time_taken = avg_time_taken;
+    }
+
+    public void setPb_qsn_timeout(ProgressBar pb_qsn_timeout) {
+        this.pb_qsn_timeout = pb_qsn_timeout;
+    }
 
     int answer;
     long question_start_time;
@@ -32,6 +58,9 @@ public abstract class GenericArithmetic {
         this.tv_qn_feedback = (TextView) tv_qn_feedback;
     }
 
+    public long getAvg_time_taken() {
+        return avg_time_taken;
+    }
 
     public int getAnswer() {
         return answer;
@@ -43,6 +72,8 @@ public abstract class GenericArithmetic {
     }
 
     public GenericArithmetic() {
+        userTimeTaken = new ArrayList<>();
+
     }
 
     public void answer_question(int user_input) {
@@ -54,6 +85,9 @@ public abstract class GenericArithmetic {
             tv_qn_feedback.setTextColor(RED);
             tv_qn_feedback.setText("Wrong!!");
         }
+
+        recordTime();
+
     }
 
     public int generate_questions() {
@@ -81,6 +115,49 @@ public abstract class GenericArithmetic {
         return answer;
 //        return eqn;
     }
+
+    public void cdt_repeat() {
+
+        if (cdt_qsn != null)
+            cdt_qsn.cancel();
+
+        pb_qsn_timeout.setMax((int) avg_time_taken / cd_interval);
+        pb_qsn_timeout.setProgress((int) avg_time_taken);
+        cdt_qsn = new CountDownTimer(avg_time_taken, cd_interval) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int progress = (int) (millisUntilFinished / cd_interval);
+                pb_qsn_timeout.setProgress(progress);
+
+            }
+
+            @Override
+            public void onFinish() {
+                Log.d(TAG, "ENDED!!");
+                tv_qn_feedback.setText(R.string.tv_feedback_timeout);
+                tv_qn_feedback.setTextColor(RED);
+
+                //TODO NEW CLASS NEED TO REFACTOR THIS
+                answered_consecutive_helper(-1);
+//                tv_arith_question.setText(generate_questions());
+
+                answer = generate_questions();
+                question_start_time = getQuestion_start_time();
+                cdt_repeat();
+            }
+        };
+
+        cdt_qsn.start();
+    }
+
+    /**
+     * Generate Next number with operator e.g. "+ 1" or "- 1". Generated number will be kept between 0 - 99.
+     * TODO Add multiplications into the next number generation
+     *
+     * @param curr      Current sum of all digits.
+     * @param final_num Next number is final, end result will make equation answer range from 0 - 9
+     * @return "+ 1" or "- 1". Generated number will keep the sum between 0 - 99
+     */
 
     private String gen_next_num(int curr, Boolean final_num) {
 
@@ -134,8 +211,39 @@ public abstract class GenericArithmetic {
         return ans;
     }
 
+    private void answered_consecutive_helper(int user_input) {
+        if (user_input == answer) { // User answer question correctly
 
+            if (num_consecutive_correct < 0) //If previous answered wrongly
+                num_consecutive_correct = 1;
+            else
+                num_consecutive_correct++; // Previously correct, increment
 
-    abstract public int calculate_time();
+        } else { //User answered the question wrongly
+            if (num_consecutive_correct > 0) { //If previously answered correctly
+                Log.d(TAG, "num:" + num_consecutive_correct);
+                num_consecutive_correct = -1;
+            } else {
+                Log.d(TAG, "num:" + num_consecutive_correct);
+                num_consecutive_correct--;
+            }
+        }
+        // Increase or decrease the time taken with 3 consecutively correct or wrong.
+        long timeChange = avg_time_taken / 10;
+        if (num_consecutive_correct <= -3) {
+            avg_time_taken += timeChange;
+
+        } else if (num_consecutive_correct >= 3) {
+            avg_time_taken -= timeChange;
+        }
+
+    }
+
+    abstract public long calculate_time();
+
+    /**
+     * Actions to take into account for time
+     */
+    abstract public void recordTime();
 
 }

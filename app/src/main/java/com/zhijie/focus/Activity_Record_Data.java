@@ -44,7 +44,6 @@ import model.ArithmeticTest;
 import model.ArithmeticTraining;
 import model.GenericArithmetic;
 
-import static android.graphics.Color.RED;
 import static constants.Constants.ARITH_TEST_TIMEOUT;
 import static constants.Constants.ARITH_TRAINING_TIMEOUT;
 import static constants.Constants.GUIDED_MEDITATION_TRACK;
@@ -234,18 +233,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     Log.d(TAG, getString(R.string.anno_arith_training_end));
                     pb_timer.setProgress(0);
 
-                    //Calculate time taken for each question for the Test later.
-                    long total_time_taken = 0;
-                    for (int i = 0; i < userTimeTaken.size(); i++) {
-                        total_time_taken += userTimeTaken.get(i);
-                    }
-
-                    if (userTimeTaken.size() == 0) {
-                        avg_time_taken = 9000;
-                    } else {
-                        avg_time_taken = total_time_taken / userTimeTaken.size();
-                    }
-                    Log.d(TAG, "Avg time: " + avg_time_taken);
+                    avg_time_taken = arith_session.calculate_time();
 
                     // Break Session
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -340,21 +328,27 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             arith_session = new ArithmeticTest();
+            initUI();
+            pb_qsn_timeout.setVisibility(View.VISIBLE);
+            arith_session.setCdt_qsn(cdt_qsn);
+            arith_session.setPb_qsn_timeout(pb_qsn_timeout);
+            arith_session.setAvg_time_taken(avg_time_taken);
+
 
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
-            initUI();
             tv_muse_status.setText(muse_status);
             tv_current_activity_instr.setText(R.string.tv_activity_test_instr);
             is_arith_test = true;
 
-            pb_qsn_timeout.setVisibility(View.VISIBLE);
 
             //todo new class
-            arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
+            //arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
+            answer = arith_session.generate_questions();
+            question_start_time = arith_session.getQuestion_start_time();
 
 //            tv_arith_question.setText(generate_questions());
-            cdt_repeat();
+            arith_session.cdt_repeat();
 
 
             int time = ARITH_TEST_TIMEOUT * 1000;
@@ -372,7 +366,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 public void onFinish() {
                     saveFile();
                     pb_qsn_timeout.setProgress(0);
-                    cdt_qsn.cancel();
+                    arith_session.cdt_qsn.cancel();
                     fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_end));
                     Log.d(TAG, getString(R.string.anno_arith_test_end));
                     start_arithmetic_test_completed();
@@ -407,120 +401,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     }
 
-    private void cdt_repeat() {
 
-        if (cdt_qsn != null)
-            cdt_qsn.cancel();
-
-        pb_qsn_timeout.setMax((int) avg_time_taken / cd_interval);
-        pb_qsn_timeout.setProgress((int) avg_time_taken);
-        cdt_qsn = new CountDownTimer(avg_time_taken, cd_interval) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int progress = (int) (millisUntilFinished / cd_interval);
-                pb_qsn_timeout.setProgress(progress);
-            }
-
-            @Override
-            public void onFinish() {
-                tv_qn_feedback.setText(R.string.tv_feedback_timeout);
-                tv_qn_feedback.setTextColor(RED);
-
-                //TODO NEW CLASS NEED TO REFACTOR THIS
-                answered_consecutive_helper(-1);
-//                tv_arith_question.setText(generate_questions());
-
-                answer = arith_session.generate_questions();
-                question_start_time = arith_session.getQuestion_start_time();
-                cdt_repeat();
-            }
-        };
-
-        cdt_qsn.start();
-    }
-
-//    private String generate_questions() {
-//        Random r = new Random();
-//
-//        answer = 0; //r.nextInt(9);
-//        String eqn;
-//        int curr;
-//        int a = r.nextInt(100);
-//        String b = gen_next_num(a, false);
-//        curr = eval(a + b);
-//        String c = gen_next_num(curr, false);
-//        curr = eval(a + b + c);
-//        String d = gen_next_num(curr, true);
-//
-//        eqn = a + b + c + d;
-//        answer = eval(a + b + c + d);
-//        Log.d(TAG, eqn + " = " + answer);
-//
-//        question_start_time = System.currentTimeMillis(); //Set Start time after question generation
-//
-//        return eqn;
-//    }
-
-    /**
-     * Generate Next number with operator e.g. "+ 1" or "- 1". Generated number will be kept between 0 - 99.
-     * TODO Add multiplications into the next number generation
-     *
-     * @param curr      Current sum of all digits.
-     * @param final_num Next number is final, end result will make equation answer range from 0 - 9
-     * @return "+ 1" or "- 1". Generated number will keep the sum between 0 - 99
-     */
-//    private String gen_next_num(int curr, Boolean final_num) {
-//
-//        int bound;
-//        String new_num = "";
-//        Random r = new Random();
-//        int opt = r.nextInt(2);
-//
-//        if (final_num) {
-//            bound = 10;
-//        } else {
-//            bound = 100;
-//        }
-//
-//        if (curr < 10) {
-//
-//            if (opt == 0) {
-//                new_num = "+" + r.nextInt(bound - curr);
-//            } else if (opt == 1)
-//                new_num = "-" + r.nextInt(1 + curr);
-//
-//        } else {
-//            if (final_num) { //Answer must be between 0 - 10
-//                new_num = "-" + (r.nextInt(10) + curr - 9);
-//            } else {
-//                if (opt == 0) {
-//                    new_num = "+" + r.nextInt(bound - curr);
-//                } else if (opt == 1)
-//                    new_num = "-" + r.nextInt(1 + curr);
-//            }
-//
-//        }
-//
-//        return new_num;
-//    }
-
-    /**
-     * Evaluate the provided equation and returns int.
-     *  eqn String of equation to be solved.
-     * @return Result of equation
-     */
-//    private int eval(String eqn) {
-//        int ans = -1;
-//        try {
-//            Interpreter itpr = new Interpreter();
-//            ans = (int) itpr.eval(eqn);
-//        } catch (EvalError e) {
-//            Log.d(TAG, e.getErrorText());
-//        }
-//        return ans;
-//    }
-//
-//
     @Override
     public void onClick(View v) {
         int user_input = -1;
@@ -564,62 +445,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 //        answer_question(user_input);
     }
 
-//    private void answer_question(int user_input) {
-//        if (user_input == answer) {
-//            tv_qn_feedback.setTextColor(GREEN);
-//            tv_qn_feedback.setText(R.string.tv_feedback_correct);
-//        } else {
-//            tv_qn_feedback.setTextColor(RED);
-//            tv_qn_feedback.setText(R.string.tv_feedback_wrong);
-//
-//        }
-//        // For Arithmetic Test
-//        if (is_arith_test) {
-//
-//            answered_consecutive_helper(user_input);
-//            cdt_repeat();
-//
-//        }
-//
-//        // For Arithmetic Training
-//        if (!is_arith_test) {
-//            // Record user time taken in milliseconds.
-//            userTimeTaken.add(System.currentTimeMillis() - question_start_time);
-//            Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
-//        }
-//
-//        tv_arith_question.setText(generate_questions());
-//
-//    }
-
-    private void answered_consecutive_helper(int user_input) {
-        if (user_input == answer) { // User answer question correctly
-
-            if (num_consecutive_correct < 0) //If previous answered wrongly
-                num_consecutive_correct = 1;
-            else
-                num_consecutive_correct++; // Previously correct, increment
-
-        } else { //User answered the question wrongly
-            if (num_consecutive_correct > 0) { //If previously answered correctly
-                Log.d(TAG, "num:" + num_consecutive_correct);
-                num_consecutive_correct = -1;
-            } else {
-                Log.d(TAG, "num:" + num_consecutive_correct);
-                num_consecutive_correct--;
-            }
-        }
-        // Increase or decrease the time taken with 3 consecutively correct or wrong.
-        long timeChange = avg_time_taken / 10;
-        if (num_consecutive_correct <= -3) {
-            avg_time_taken += timeChange;
-
-        } else if (num_consecutive_correct >= 3) {
-            avg_time_taken -= timeChange;
-        }
-
-    }
-
     private void cdt_muse_stable() {
         long time = MUSE_STABLE_TIME * 1000;
         cdt_muse_stable = new CountDownTimer(time, 1000) {
@@ -634,8 +459,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }
         }.start();
     }
-
-
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
@@ -676,21 +499,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         a7.setOnClickListener(this);
         a8.setOnClickListener(this);
         a9.setOnClickListener(this);
-
-
-//        start_record_btn = findViewById(R.id.start_recording);
-//        start_record_btn.setEnabled(false);
-//        start_record_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (is_recording) {
-//                    // Stop Recording and save file
-//                    saveFile();
-//                    is_recording = false;
-//                    start_record_btn.setText(R.string.start_rec);
-//
-//                }
-//             });
 
     }
 
@@ -759,33 +567,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
     }
 
-//    /**
-//     * We don't want to block the UI thread while we write to a file, so the file
-//     * writing is moved to a separate thread.
-//     */
-//    private final Thread fileThread = new Thread() {
-//        @Override
-//        public void run() {
-//            Looper.prepare();
-//
-//            SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.US);
-//            Date now = new Date();
-//            String fileName = formatter.format(now) + ".muse";
-//
-//            fileHandler.set(new Handler());
-//            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-//            final File file = new File(dir, fileName);
-//            // MuseFileWriter will append to an existing file.
-//            // In this case, we want to start fresh so the file
-//            // if it exists.
-//            if (file.exists()) {
-//                file.delete();
-//            }
-//            Log.i(TAG, "Writing data to: " + file.getAbsolutePath());
-//            fileWriter.set(MuseFileFactory.getMuseFileWriter(file));
-//            Looper.loop();
-//        }
-//    };
     /**
      * Writes the provided MuseDataPacket to the file.  MuseFileWriter knows
      * how to write all packet types generated from LibMuse.
