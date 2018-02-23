@@ -232,9 +232,11 @@ public abstract class GenericArithmetic {
         long timeChange = avg_time_taken / 10;
         if (num_consecutive_correct <= -3) {
             avg_time_taken += timeChange;
+            Log.d(TAG, "Time increased to " + avg_time_taken);
 
         } else if (num_consecutive_correct >= 3) {
             avg_time_taken -= timeChange;
+            Log.d(TAG, "Time decreased to " + avg_time_taken);
         }
 
     }

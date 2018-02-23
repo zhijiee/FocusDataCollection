@@ -34,7 +34,6 @@ import com.choosemuse.libmuse.MuseManagerAndroid;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +81,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private String muse_status;
 
     private boolean is_recording = false;
-    private boolean is_arith_test = false;
+    //    private boolean is_arith_test = false;
     private boolean is_muse_stable = false;
     private boolean EEG_data_collection_not_finished = true;
 
@@ -96,14 +95,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private ProgressBar pb_qsn_timeout;
 
     private String name;
-    private int answer;
-    private int num_consecutive_correct = 0;
-    private List<Long> userTimeTaken;
-    private long question_start_time;
+    //    private int answer;
+//    private int num_consecutive_correct = 0;
+//    private List<Long> userTimeTaken;
+//    private long question_start_time;
     private long avg_time_taken;
 
     private CountDownTimer cdt_muse_stable;
-    private CountDownTimer cdt_qsn;
+//    private CountDownTimer cdt_qsn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +129,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             Intent i = new Intent(this, Activity_Connect_Muse.class);
             startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
         } else {
-            start_arithmetic_training_dialog(); //TODO REMOVE, MUSE CONNECTION
+            start_arithmetic_training_dialog();
         }
         initUI(); // Init UI Elements
 
@@ -145,7 +144,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         builder.setPositiveButton(R.string.dialog_arith_training_btn_pos, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-                is_arith_test = false; //Set false
+//                is_arith_test = false; //Set false
                 // Start Recording Data
                 initFileWriter();
 
@@ -161,7 +160,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
-        //TODO FOR MUSE CONNECTION
         if (USE_MUSE) {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             cdt_muse_stable();
@@ -253,11 +251,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 }
             }.start();
 
-            // TODO TESTING new training class
-            answer = arith_session.generate_questions();
-            question_start_time = arith_session.getQuestion_start_time();
-
-//            tv_arith_question.setText(generate_questions());
+            arith_session.generate_questions();
+            arith_session.getQuestion_start_time();
 
 
         }
@@ -330,7 +325,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             arith_session = new ArithmeticTest();
             initUI();
             pb_qsn_timeout.setVisibility(View.VISIBLE);
-            arith_session.setCdt_qsn(cdt_qsn);
+//            arith_session.setCdt_qsn(cdt_qsn);
             arith_session.setPb_qsn_timeout(pb_qsn_timeout);
             arith_session.setAvg_time_taken(avg_time_taken);
 
@@ -339,15 +334,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
             tv_muse_status.setText(muse_status);
             tv_current_activity_instr.setText(R.string.tv_activity_test_instr);
-            is_arith_test = true;
 
-
-            //todo new class
-            //arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
-            answer = arith_session.generate_questions();
-            question_start_time = arith_session.getQuestion_start_time();
-
-//            tv_arith_question.setText(generate_questions());
+            arith_session.generate_questions();
+            arith_session.getQuestion_start_time();
             arith_session.cdt_repeat();
 
 
@@ -469,11 +458,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_qn_feedback = findViewById(R.id.tv_qsn_feedback);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
 
-        userTimeTaken = new ArrayList<>();
+//        userTimeTaken = new ArrayList<>();
 
         muse_status = getString(R.string.undefined);
 
-        //TODO new classes
         arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
         arith_session.setTv_question(findViewById(R.id.arith_question));
 
