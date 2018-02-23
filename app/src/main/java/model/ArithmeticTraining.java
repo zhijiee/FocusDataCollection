@@ -1,4 +1,4 @@
-package Models;
+package model;
 
 public class ArithmeticTraining extends GenericArithmetic {
 
@@ -9,18 +9,10 @@ public class ArithmeticTraining extends GenericArithmetic {
 
     @Override
     public int calculate_time() {
-        int a = 0;
 
+        int a = 0;
         return a;
 
     }
 
-    public void incrementCorrect() {
-        if (currentCorrect == 0) {
-            currentCorrect++;
-        } else {
-            currentCorrect = 1;
-        }
-
-    }
 }

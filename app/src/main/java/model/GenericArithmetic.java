@@ -1,6 +1,7 @@
-package Models;
+package model;
 
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.Random;
@@ -12,20 +13,30 @@ import static android.content.ContentValues.TAG;
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
 
-
 public abstract class GenericArithmetic {
 
     private TextView tv_qn_feedback;
+    private TextView tv_question;
+
+
     int answer;
     long question_start_time;
+
+    public void setTv_question(View tv_question) {
+        Log.d(TAG, "Set tv question");
+        this.tv_question = (TextView) tv_question;
+    }
+
+    public void setTv_qn_feedback(View tv_qn_feedback) {
+        Log.d(TAG, "Set tv question feedback");
+        this.tv_qn_feedback = (TextView) tv_qn_feedback;
+    }
+
 
     public int getAnswer() {
         return answer;
     }
 
-    public void setTv_qn_feedback(TextView tv_qn_feedback) {
-        this.tv_qn_feedback = tv_qn_feedback;
-    }
 
     public long getQuestion_start_time() {
         return question_start_time;
@@ -34,9 +45,9 @@ public abstract class GenericArithmetic {
     public GenericArithmetic() {
     }
 
-    public void answer_question(int ans, int user_input) {
+    public void answer_question(int user_input) {
 
-        if (user_input == ans) {
+        if (user_input == answer) {
             tv_qn_feedback.setTextColor(GREEN);
             tv_qn_feedback.setText("Correct!!");
         } else {
@@ -51,11 +62,14 @@ public abstract class GenericArithmetic {
         answer = 0; //r.nextInt(9);
         String eqn;
         int curr;
+
         int a = r.nextInt(100);
         String b = gen_next_num(a, false);
         curr = eval(a + b);
+
         String c = gen_next_num(curr, false);
         curr = eval(a + b + c);
+
         String d = gen_next_num(curr, true);
 
         eqn = a + b + c + d;
@@ -63,7 +77,7 @@ public abstract class GenericArithmetic {
         Log.d(TAG, eqn + " = " + answer);
 
         question_start_time = System.currentTimeMillis(); //Set Start time after question generation
-        tv_qn_feedback.setText(eqn);
+        tv_question.setText(eqn);
         return answer;
 //        return eqn;
     }

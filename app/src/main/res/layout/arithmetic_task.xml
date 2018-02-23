@@ -43,7 +43,7 @@
         android:layout_marginTop="32dp"
         android:gravity="center"
         android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/qsn_feedback"
+        app:layout_constraintBottom_toTopOf="@+id/tv_qsn_feedback"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +62,7 @@
         android:visibility="invisible" />
 
     <TextView
-        android:id="@+id/qsn_feedback"
+        android:id="@+id/tv_qsn_feedback"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

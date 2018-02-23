@@ -34,17 +34,19 @@
         android:id="@+id/gm_instr"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="200dp"
-        android:autoText="true"
+        android:layout_marginTop="32dp"
         android:gravity="center_horizontal|center"
         android:text="Close your eyes and follow the guided meditation. "
         android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_about_meditation_track"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gm_title" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/muse_text"
@@ -66,6 +68,19 @@
         android:text="@string/tv_muse_connected"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_about_meditation_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:gravity="center_horizontal|center"
+        android:text="@string/tv_meditation_citation"
+        app:layout_constraintBottom_toTopOf="@+id/muse_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

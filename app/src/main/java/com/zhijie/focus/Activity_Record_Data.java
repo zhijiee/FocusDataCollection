@@ -38,31 +38,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
-import Models.ArithmeticTest;
-import Models.ArithmeticTraining;
-import bsh.EvalError;
-import bsh.Interpreter;
+import model.ArithmeticTest;
+import model.ArithmeticTraining;
+import model.GenericArithmetic;
 
-import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
+import static constants.Constants.ARITH_TEST_TIMEOUT;
+import static constants.Constants.ARITH_TRAINING_TIMEOUT;
+import static constants.Constants.GUIDED_MEDITATION_TRACK;
+import static constants.Constants.MUSE_STABLE_TIME;
+import static constants.Constants.USE_MUSE;
+import static constants.Constants.cd_interval;
+
+//import static constants.Constants.ARITH_TEST_TIMEOUT;
 
 /*
     TODO: Create Spinner while connecting
     TODO: Better connection animation
  */
 public class Activity_Record_Data extends Activity implements View.OnClickListener {
-    //Global Variables
-
-    // TODO Change the timing Variables, 3 Min, 3 Min
-    private static final int ARITH_TRAINING_TIMEOUT = 5;
-    private static final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
-    private static final int ARITH_TEST_TIMEOUT = 5; //180
-    private static final int cd_interval = 1;
-    private static final int MUSE_STABLE_TIME = 3;
-    private static final boolean USE_MUSE = false;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -75,8 +71,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private final double[] accelBuffer = new double[3];
     private final double[] hsiBuffer = new double[4];
 
-    private ArithmeticTraining arithTraining;
-    private ArithmeticTest arithTest;
+    //    private GenericArithmetic arith_session;
+    private GenericArithmetic arith_session;
+//    private ArithmeticTest arithTest;
 
     AlertDialog dialog;
     private Muse muse;
@@ -113,8 +110,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        arithTraining = new ArithmeticTraining();
-        arithTest = new ArithmeticTest();
+        arith_session = new ArithmeticTraining();
 
         context = this;
         // Load the Muse Library
@@ -174,6 +170,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         }
     }
 
+    // Check for Good connection before allowing the user to proceed
     private Runnable update_hsi_for_dialog = new Runnable() {
         @Override
         public void run() {
@@ -209,21 +206,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         }
     };
 
-    private void cdt_muse_stable() {
-        long time = MUSE_STABLE_TIME * 1000;
-        cdt_muse_stable = new CountDownTimer(time, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                is_muse_stable = true;
-            }
-        }.start();
-    }
-
     /**
      * Start of Training Session
      */
@@ -234,7 +216,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             tv_current_activity_instr.setText(R.string.tv_activity_training_instr);
 
             // Set Timer for Training session, When time ended --> Break
-
             int time = ARITH_TRAINING_TIMEOUT * 1000;
             pb_timer.setMax(time / cd_interval);
 
@@ -285,10 +266,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }.start();
 
             // TODO TESTING new training class
-//            answer = arithTraining.generate_questions();
-//            question_start_time = arithTraining.getQuestion_start_time();
+            answer = arith_session.generate_questions();
+            question_start_time = arith_session.getQuestion_start_time();
 
-            tv_arith_question.setText(generate_questions());
+//            tv_arith_question.setText(generate_questions());
 
 
         }
@@ -358,6 +339,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private Runnable arith_test_session = new Runnable() {
         @Override
         public void run() {
+            arith_session = new ArithmeticTest();
+
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
             initUI();
@@ -368,9 +351,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             pb_qsn_timeout.setVisibility(View.VISIBLE);
 
             //todo new class
-//            arithTest.setTv_qn_feedback(findViewById(R.id.));
+            arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
 
-            tv_arith_question.setText(generate_questions());
+//            tv_arith_question.setText(generate_questions());
             cdt_repeat();
 
 
@@ -442,8 +425,13 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             public void onFinish() {
                 tv_qn_feedback.setText(R.string.tv_feedback_timeout);
                 tv_qn_feedback.setTextColor(RED);
+
+                //TODO NEW CLASS NEED TO REFACTOR THIS
                 answered_consecutive_helper(-1);
-                tv_arith_question.setText(generate_questions());
+//                tv_arith_question.setText(generate_questions());
+
+                answer = arith_session.generate_questions();
+                question_start_time = arith_session.getQuestion_start_time();
                 cdt_repeat();
             }
         };
@@ -451,27 +439,27 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         cdt_qsn.start();
     }
 
-    private String generate_questions() {
-        Random r = new Random();
-
-        answer = 0; //r.nextInt(9);
-        String eqn;
-        int curr;
-        int a = r.nextInt(100);
-        String b = gen_next_num(a, false);
-        curr = eval(a + b);
-        String c = gen_next_num(curr, false);
-        curr = eval(a + b + c);
-        String d = gen_next_num(curr, true);
-
-        eqn = a + b + c + d;
-        answer = eval(a + b + c + d);
-        Log.d(TAG, eqn + " = " + answer);
-
-        question_start_time = System.currentTimeMillis(); //Set Start time after question generation
-
-        return eqn;
-    }
+//    private String generate_questions() {
+//        Random r = new Random();
+//
+//        answer = 0; //r.nextInt(9);
+//        String eqn;
+//        int curr;
+//        int a = r.nextInt(100);
+//        String b = gen_next_num(a, false);
+//        curr = eval(a + b);
+//        String c = gen_next_num(curr, false);
+//        curr = eval(a + b + c);
+//        String d = gen_next_num(curr, true);
+//
+//        eqn = a + b + c + d;
+//        answer = eval(a + b + c + d);
+//        Log.d(TAG, eqn + " = " + answer);
+//
+//        question_start_time = System.currentTimeMillis(); //Set Start time after question generation
+//
+//        return eqn;
+//    }
 
     /**
      * Generate Next number with operator e.g. "+ 1" or "- 1". Generated number will be kept between 0 - 99.
@@ -481,58 +469,58 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
      * @param final_num Next number is final, end result will make equation answer range from 0 - 9
      * @return "+ 1" or "- 1". Generated number will keep the sum between 0 - 99
      */
-    private String gen_next_num(int curr, Boolean final_num) {
-
-        int bound;
-        String new_num = "";
-        Random r = new Random();
-        int opt = r.nextInt(2);
-
-        if (final_num) {
-            bound = 10;
-        } else {
-            bound = 100;
-        }
-
-        if (curr < 10) {
-
-            if (opt == 0) {
-                new_num = "+" + r.nextInt(bound - curr);
-            } else if (opt == 1)
-                new_num = "-" + r.nextInt(1 + curr);
-
-        } else {
-            if (final_num) { //Answer must be between 0 - 10
-                new_num = "-" + (r.nextInt(10) + curr - 9);
-            } else {
-                if (opt == 0) {
-                    new_num = "+" + r.nextInt(bound - curr);
-                } else if (opt == 1)
-                    new_num = "-" + r.nextInt(1 + curr);
-            }
-
-        }
-
-        return new_num;
-    }
+//    private String gen_next_num(int curr, Boolean final_num) {
+//
+//        int bound;
+//        String new_num = "";
+//        Random r = new Random();
+//        int opt = r.nextInt(2);
+//
+//        if (final_num) {
+//            bound = 10;
+//        } else {
+//            bound = 100;
+//        }
+//
+//        if (curr < 10) {
+//
+//            if (opt == 0) {
+//                new_num = "+" + r.nextInt(bound - curr);
+//            } else if (opt == 1)
+//                new_num = "-" + r.nextInt(1 + curr);
+//
+//        } else {
+//            if (final_num) { //Answer must be between 0 - 10
+//                new_num = "-" + (r.nextInt(10) + curr - 9);
+//            } else {
+//                if (opt == 0) {
+//                    new_num = "+" + r.nextInt(bound - curr);
+//                } else if (opt == 1)
+//                    new_num = "-" + r.nextInt(1 + curr);
+//            }
+//
+//        }
+//
+//        return new_num;
+//    }
 
     /**
      * Evaluate the provided equation and returns int.
-     * @param eqn String of equation to be solved.
+     *  eqn String of equation to be solved.
      * @return Result of equation
      */
-    private int eval(String eqn) {
-        int ans = -1;
-        try {
-            Interpreter itpr = new Interpreter();
-            ans = (int) itpr.eval(eqn);
-        } catch (EvalError e) {
-            Log.d(TAG, e.getErrorText());
-        }
-        return ans;
-    }
-
-
+//    private int eval(String eqn) {
+//        int ans = -1;
+//        try {
+//            Interpreter itpr = new Interpreter();
+//            ans = (int) itpr.eval(eqn);
+//        } catch (EvalError e) {
+//            Log.d(TAG, e.getErrorText());
+//        }
+//        return ans;
+//    }
+//
+//
     @Override
     public void onClick(View v) {
         int user_input = -1;
@@ -571,37 +559,38 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 Toast.makeText(this, "MISSING BREAK STATEMENT/ NO SUCH BUTTON", Toast.LENGTH_LONG).show();
 
         }
-
-        answer_question(user_input);
+        arith_session.answer_question(user_input);
+        arith_session.generate_questions();
+//        answer_question(user_input);
     }
 
-    private void answer_question(int user_input) {
-        if (user_input == answer) {
-            tv_qn_feedback.setTextColor(GREEN);
-            tv_qn_feedback.setText(R.string.tv_feedback_correct);
-        } else {
-            tv_qn_feedback.setTextColor(RED);
-            tv_qn_feedback.setText(R.string.tv_feedback_wrong);
-
-        }
-        // For Arithmetic Test
-        if (is_arith_test) {
-
-            answered_consecutive_helper(user_input);
-            cdt_repeat();
-
-        }
-
-        // For Arithmetic Training
-        if (!is_arith_test) {
-            // Record user time taken in milliseconds.
-            userTimeTaken.add(System.currentTimeMillis() - question_start_time);
-            Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
-        }
-
-        tv_arith_question.setText(generate_questions());
-
-    }
+//    private void answer_question(int user_input) {
+//        if (user_input == answer) {
+//            tv_qn_feedback.setTextColor(GREEN);
+//            tv_qn_feedback.setText(R.string.tv_feedback_correct);
+//        } else {
+//            tv_qn_feedback.setTextColor(RED);
+//            tv_qn_feedback.setText(R.string.tv_feedback_wrong);
+//
+//        }
+//        // For Arithmetic Test
+//        if (is_arith_test) {
+//
+//            answered_consecutive_helper(user_input);
+//            cdt_repeat();
+//
+//        }
+//
+//        // For Arithmetic Training
+//        if (!is_arith_test) {
+//            // Record user time taken in milliseconds.
+//            userTimeTaken.add(System.currentTimeMillis() - question_start_time);
+//            Log.d(TAG, "Time: " + (System.currentTimeMillis() - question_start_time));
+//        }
+//
+//        tv_arith_question.setText(generate_questions());
+//
+//    }
 
     private void answered_consecutive_helper(int user_input) {
         if (user_input == answer) { // User answer question correctly
@@ -631,6 +620,22 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
     }
 
+    private void cdt_muse_stable() {
+        long time = MUSE_STABLE_TIME * 1000;
+        cdt_muse_stable = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                is_muse_stable = true;
+            }
+        }.start();
+    }
+
+
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
@@ -638,7 +643,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_arith_question = findViewById(R.id.arith_question);
         tv_muse_status = findViewById(R.id.tv_muse_status);
         pb_timer = findViewById(R.id.pb_task_timer);
-        tv_qn_feedback = findViewById(R.id.qsn_feedback);
+        tv_qn_feedback = findViewById(R.id.tv_qsn_feedback);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
 
         userTimeTaken = new ArrayList<>();
@@ -646,7 +651,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         muse_status = getString(R.string.undefined);
 
         //TODO new classes
-//        arithTraining.setTv_qn_feedback((TextView)findViewById(R.id.qsn_feedback));
+        arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
+        arith_session.setTv_question(findViewById(R.id.arith_question));
 
         //Buttons
         Button a0 = findViewById(R.id.ans0);
