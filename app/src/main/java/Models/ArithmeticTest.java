@@ -1,10 +1,10 @@
 package Models;
 
-public class ArithmeticTraining extends GenericArithmetic {
+public class ArithmeticTest extends GenericArithmetic {
 
     private int currentCorrect = 0;
 
-    public ArithmeticTraining() {
+    public ArithmeticTest() {
     }
 
     @Override

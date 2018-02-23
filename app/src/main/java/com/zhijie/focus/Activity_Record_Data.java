@@ -41,6 +41,8 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
+import Models.ArithmeticTest;
+import Models.ArithmeticTraining;
 import bsh.EvalError;
 import bsh.Interpreter;
 
@@ -55,12 +57,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     //Global Variables
 
     // TODO Change the timing Variables, 3 Min, 3 Min
-    private static final int ARITH_TRAINING_TIMEOUT = 30;
+    private static final int ARITH_TRAINING_TIMEOUT = 5;
     private static final int GUIDED_MEDITATION_TRACK = R.raw.ting;  //TODO R.raw.guided_meditation
-    private static final int ARITH_TEST_TIMEOUT = 30; //180
+    private static final int ARITH_TEST_TIMEOUT = 5; //180
     private static final int cd_interval = 1;
     private static final int MUSE_STABLE_TIME = 3;
-    private static final boolean USE_MUSE = true;
+    private static final boolean USE_MUSE = false;
 
     private final String TAG = "Activity_Record_Data";
     private final Handler handler = new Handler();
@@ -73,12 +75,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private final double[] accelBuffer = new double[3];
     private final double[] hsiBuffer = new double[4];
 
+    private ArithmeticTraining arithTraining;
+    private ArithmeticTest arithTest;
+
     AlertDialog dialog;
     private Muse muse;
     private MuseManagerAndroid manager;
     private DataListener dataListener; // Receive packets from connected band
     private ConnectionListener connectionListener; //Headband connection Status
-    //    private ArithmeticTraining arithmeticTraining;
     private String muse_status;
 
     private boolean is_recording = false;
@@ -109,6 +113,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        arithTraining = new ArithmeticTraining();
+        arithTest = new ArithmeticTest();
+
         context = this;
         // Load the Muse Library
         manager = MuseManagerAndroid.getInstance();
@@ -123,9 +130,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         connectionListener = new ConnectionListener(weakActivity); //Status of Muse Headband
         dataListener = new DataListener(weakActivity); //Get data from EEG
 
-        //TODO Uncomment, MUSE CONNECTION
         // Connect Muse Activity
-
         if (USE_MUSE) {
             Intent i = new Intent(this, Activity_Connect_Muse.class);
             startActivityForResult(i, R.integer.SELECT_MUSE_REQUEST);
@@ -279,6 +284,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 }
             }.start();
 
+            // TODO TESTING new training class
+//            answer = arithTraining.generate_questions();
+//            question_start_time = arithTraining.getQuestion_start_time();
+
             tv_arith_question.setText(generate_questions());
 
 
@@ -357,6 +366,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             is_arith_test = true;
 
             pb_qsn_timeout.setVisibility(View.VISIBLE);
+
+            //todo new class
+//            arithTest.setTv_qn_feedback(findViewById(R.id.));
+
             tv_arith_question.setText(generate_questions());
             cdt_repeat();
 
@@ -631,6 +644,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         userTimeTaken = new ArrayList<>();
 
         muse_status = getString(R.string.undefined);
+
+        //TODO new classes
+//        arithTraining.setTv_qn_feedback((TextView)findViewById(R.id.qsn_feedback));
 
         //Buttons
         Button a0 = findViewById(R.id.ans0);
