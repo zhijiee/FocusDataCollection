@@ -109,6 +109,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
 
         arith_session = new ArithmeticTraining();
+//        arith_session = new GenericArithmetic();
 
         context = this;
         // Load the Muse Library
@@ -231,7 +232,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     Log.d(TAG, getString(R.string.anno_arith_training_end));
                     pb_timer.setProgress(0);
 
-                    avg_time_taken = arith_session.calculate_time();
+                    avg_time_taken = arith_session.get_avg_time();
 
                     // Break Session
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -252,7 +253,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }.start();
 
             arith_session.generate_questions();
-            arith_session.getQuestion_start_time();
+//            arith_session.getQuestion_start_time();
 
 
         }
@@ -323,6 +324,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             arith_session = new ArithmeticTest();
+//            arith_session = new GenericArithmetic();
             initUI();
             pb_qsn_timeout.setVisibility(View.VISIBLE);
 //            arith_session.setCdt_qsn(cdt_qsn);
@@ -336,7 +338,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             tv_current_activity_instr.setText(R.string.tv_activity_test_instr);
 
             arith_session.generate_questions();
-            arith_session.getQuestion_start_time();
+//            arith_session.getQuestion_start_time();
             arith_session.cdt_repeat();
 
 
@@ -430,7 +432,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         }
         arith_session.answer_question(user_input);
-        arith_session.generate_questions();
+//        arith_session.generate_questions();
 //        answer_question(user_input);
     }
 
