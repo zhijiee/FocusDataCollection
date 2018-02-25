@@ -75,6 +75,41 @@ public abstract class GenericArithmetic {
     }
 
 
+
+    public void cdt_repeat() {
+
+        if (cdt_qsn != null)
+            cdt_qsn.cancel();
+
+        pb_qsn_timeout.setMax((int) avg_time_taken / cd_interval);
+        pb_qsn_timeout.setProgress((int) avg_time_taken);
+        cdt_qsn = new CountDownTimer(avg_time_taken, cd_interval) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int progress = (int) (millisUntilFinished / cd_interval);
+                pb_qsn_timeout.setProgress(progress);
+
+            }
+
+            @Override
+            public void onFinish() {
+//                Log.d(TAG, "ENDED!!");
+                tv_qn_feedback.setText(R.string.tv_feedback_timeout);
+                tv_qn_feedback.setTextColor(RED);
+
+                updateAverageTime(-1);
+//                tv_arith_question.setText(generate_questions());
+
+//                answer = generate_questions();
+                generate_questions();
+//                question_start_time = getQuestion_start_time();
+                cdt_repeat();
+            }
+        };
+
+        cdt_qsn.start();
+    }
+
     public void generate_questions() {
         Random r = new Random();
 
@@ -82,7 +117,7 @@ public abstract class GenericArithmetic {
         String eqn;
         int curr;
 
-        int a = r.nextInt(100);
+        int a = r.nextInt(MAX_GENERATED_NUM);
 
         String b = gen_next_num(a, false);
         curr = eval(a + b);
@@ -103,42 +138,6 @@ public abstract class GenericArithmetic {
 
         question_start_time = System.currentTimeMillis(); //Set Start time after question generation
         tv_question.setText(eqn);
-//        return answer;
-//        return eqn;
-    }
-
-    public void cdt_repeat() {
-
-        if (cdt_qsn != null)
-            cdt_qsn.cancel();
-
-        pb_qsn_timeout.setMax((int) avg_time_taken / cd_interval);
-        pb_qsn_timeout.setProgress((int) avg_time_taken);
-        cdt_qsn = new CountDownTimer(avg_time_taken, cd_interval) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int progress = (int) (millisUntilFinished / cd_interval);
-                pb_qsn_timeout.setProgress(progress);
-
-            }
-
-            @Override
-            public void onFinish() {
-                Log.d(TAG, "ENDED!!");
-                tv_qn_feedback.setText(R.string.tv_feedback_timeout);
-                tv_qn_feedback.setTextColor(RED);
-
-                updateAverageTime(-1);
-//                tv_arith_question.setText(generate_questions());
-
-//                answer = generate_questions();
-                generate_questions();
-//                question_start_time = getQuestion_start_time();
-                cdt_repeat();
-            }
-        };
-
-        cdt_qsn.start();
     }
 
     /**
