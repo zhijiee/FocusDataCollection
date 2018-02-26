@@ -34,7 +34,7 @@ public class Activity_Connect_Muse extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity__connect__muse);
+        setContentView(R.layout.activity_connect_muse);
 
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);

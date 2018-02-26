@@ -5,7 +5,8 @@ import android.util.Log;
 public class ArithmeticTest extends GenericArithmetic {
 
     String TAG = "ARITHMETIC_TEST_SESSION";
-
+    private float numCorrect = 0;
+    private float numAnswered = 0;
 
     @Override
     public void updateAverageTime(int user_input) {
@@ -37,6 +38,15 @@ public class ArithmeticTest extends GenericArithmetic {
             Log.d(TAG, "Time decreased to " + avg_time_taken);
         }
         cdt_repeat();
+        updateScore(user_input == answer);
+    }
+
+    public void updateScore(boolean correct) {
+        if (correct)
+            numCorrect++;
+        numAnswered++;
+        int score = (int) ((numCorrect / numAnswered) * 100);
+        tv_test_score.setText(score + "%");
     }
 
 }

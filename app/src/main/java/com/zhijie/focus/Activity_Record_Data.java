@@ -86,15 +86,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private Context context;
 
     private TextView tv_current_activity_instr;
-    //    private TextView tv_arith_question;
-//    private TextView tv_qn_feedback;
     private TextView tv_muse_status;
     private ProgressBar pb_timer;
     private ProgressBar pb_qsn_timeout;
 
     private String name;
     private long avg_time_taken;
-    private int muse_disconnected_retry_count;
 
     private CountDownTimer cdt_muse_stable;
 
@@ -126,6 +123,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             start_arithmetic_training_dialog();
         }
         initUI(); // Init UI Elements
+        muse_status = getString(R.string.undefined);
 
     }
 
@@ -165,7 +163,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
 
-            String msg = getString(R.string.dialog_arith_training_instruction, (int) hsiBuffer[0], (int) hsiBuffer[1], (int) hsiBuffer[2], (int) hsiBuffer[3]);
+            String msg = getString(R.string.dialog_arith_training_instruction, muse_status, (int) hsiBuffer[0], (int) hsiBuffer[1], (int) hsiBuffer[2], (int) hsiBuffer[3]);
             dialog.setMessage(msg);
 
             if (is_muse_stable) {
@@ -271,12 +269,14 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             Log.d(TAG, getString(R.string.anno_guided_meditation_begin));
             setContentView(R.layout.guided_meditation);
             tv_muse_status = findViewById(R.id.tv_muse_status);
+            tv_muse_status.setText(muse_status);
 
 
             MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    Log.d(TAG, "Finish playing!");
                     fileWriter.get().addAnnotationString(0, getString(R.string.anno_guided_meditation_ended));
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle(R.string.dialog_guided_meditation_title)
@@ -327,6 +327,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         public void run() {
             arith_session = new ArithmeticTest();
             initUI();
+            arith_session.setTv_test_score(findViewById(R.id.tv_score));
             pb_qsn_timeout.setVisibility(View.VISIBLE);
 
             arith_session.setPb_qsn_timeout(pb_qsn_timeout);
@@ -429,8 +430,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         }
         arith_session.answer_question(user_input);
-//        arith_session.generate_questions();
-//        answer_question(user_input);
     }
 
 
@@ -440,12 +439,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         tv_muse_status = findViewById(R.id.tv_muse_status);
         pb_timer = findViewById(R.id.pb_task_timer);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
-
-//        tv_arith_question = findViewById(R.id.arith_question);
-//        tv_qn_feedback = findViewById(R.id.tv_qsn_feedback);
-//        userTimeTaken = new ArrayList<>();
-
-        muse_status = getString(R.string.undefined);
 
         arith_session.setTv_qn_feedback(findViewById(R.id.tv_qsn_feedback));
         arith_session.setTv_question(findViewById(R.id.arith_question));
@@ -617,26 +610,25 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             // We have disconnected from the headband, so set our cached copy to null.
 //            this.muse = null;
 
-//            if (EEG_data_collection_not_finished) {
-//                android.widget.Toast.makeText
-//                        (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
-//
-//                if (muse != null) {
-//                    final Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            if (muse != null)
-//                                connect_to_muse();
-//                        }
-//                    }, 500);
-//                }
-//            }
-//
-//
-//        } else if (current == ConnectionState.CONNECTED) {
-//
-//        }
+            if (EEG_data_collection_not_finished) {
+                android.widget.Toast.makeText
+                        (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
+
+                if (muse != null) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (muse != null)
+                                connect_to_muse();
+                        }
+                    }, 500);
+                }
+            }
+
+
+        } else if (current == ConnectionState.CONNECTED) {
+
         }
     }
 

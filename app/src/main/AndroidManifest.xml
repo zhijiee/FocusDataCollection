@@ -31,8 +31,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity_Record_Data" />
-        <activity android:name=".Activity_Connect_Muse"></activity>
+        <activity
+            android:name=".Activity_Record_Data"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity_Connect_Muse"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

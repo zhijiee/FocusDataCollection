@@ -12,7 +12,7 @@
     <string name="eeg">EEG data:</string>
     <string name="accel">Accelerometer Data:</string>
     <string name="version">Version:</string>
-    <string name="undefined">unknown</string>
+    <string name="undefined">Unknown</string>
     <string name="artifacts">Blinks, Jaw: </string>
     <string name="msg_count">Msg number, size: </string>
     <string name="pause">Pause/Resume</string>
@@ -25,7 +25,6 @@
 
     <string name="museconnection_title">Choose your Muse Device to use!</string>
     <string name="tv_muse_connection_title"> Muse: </string>
-    <!--<string name="tv_muse_unk"> Unknown </string>-->
     <string name="tv_muse_connected"> Connected </string>
 
     <string name="record_data"> Start </string>
@@ -51,16 +50,15 @@
     <string name="tv_feedback_timeout"> Timeout! </string>
 
     <string name="dialog_arith_training_title">Instruction for Data Recording </string>
-    <string name="dialog_arith_training_instruction">"Sequence of Events\n1. Arithmetic Training (3 Minutes) \n2. Break\n3. Guided Meditation (10 Minutes) \n4. Break\n5. Arithmetic Test (3 Minutes)\n\nAdjust your headband until all connections are 1 or 2 before beginning!
-        \n\nEEG1: %1$d \nEEG2: %2$d \nEEG3: %3$d \nEEG4: %4$d"</string>
+    <string name="dialog_arith_training_instruction">"Sequence of Events\n1. Arithmetic Training (2 Minutes)\n2. Guided Meditation (10 Minutes) \n3. Arithmetic Test (2 Minutes)\n\nAdjust your headband until all EEG are 1!\nMuse headband: %1$s\nEEG1: %2$d \nEEG2: %3$d \nEEG3: %4$d \nEEG4: %5$d\n\nArithmetic training allows you to familiarise with the questions for the upcoming test!"</string>
     <string name="dialog_arith_training_btn_pos"> Begin Arithmetic Training! </string>
 
     <string name="dialog_break_title"> Break </string>
-    <string name="dialog_break_msg"> Arithmetic Training has ended. When ready, tap begin to start guided meditation.  </string>
+    <string name="dialog_break_msg"> Arithmetic Training has ended. Next: Guided Meditation, put on your earpiece and listen to the guided meditation track.  </string>
     <string name="dialog_break_btn_positive"> Begin Guided Meditation </string>
 
     <string name="dialog_guided_meditation_title"> Guided Meditation Completed </string>
-    <string name="dialog_guided_meditation_msg"> You have completed your 12 Min Session of guided meditation.\n Tap continue to start the Arithmetic Test! </string>
+    <string name="dialog_guided_meditation_msg"> You have completed the guided meditation.\nNext: Arithmetic test. The nature of the arithmetic test requires participants to get scores above 75% for the results to be used. </string>
     <string name="dialog_guided_meditation_btn_pos"> Continue to Arithmetic Test </string>
 
     <string name="dialog_arith_complete_title"> The Test is now complete! </string>
@@ -71,5 +69,5 @@
     <string name="tv_activity_guided_meditation_instr"> Current Task: Guided Meditation </string>
     <string name="tv_activity_test_instr"> Current Task: Arithmetic Test </string>
 
-    <string name="tv_meditation_citation"> Meditation Track: \nThe Honest Guys - Meditation - Relaxtion </string>
+    <string name="tv_meditation_citation"> Meditation Track: \nThe Honest Guys - Meditation - Relaxation </string>
 </resources>

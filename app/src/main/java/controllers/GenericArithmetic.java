@@ -29,10 +29,12 @@ public abstract class GenericArithmetic {
 
     protected TextView tv_qn_feedback;
     protected TextView tv_question;
+    protected TextView tv_test_score;
 
     protected int num_consecutive_correct = 0;
     protected long avg_time_taken;
     protected List<Long> userTimeTaken;
+
 
     protected ProgressBar pb_qsn_timeout;
 
@@ -52,6 +54,10 @@ public abstract class GenericArithmetic {
 
     public void setTv_qn_feedback(View tv_qn_feedback) {
         this.tv_qn_feedback = (TextView) tv_qn_feedback;
+    }
+
+    public void setTv_test_score(View tv_test_score) {
+        this.tv_test_score = (TextView) tv_test_score;
     }
 
     public GenericArithmetic() {
