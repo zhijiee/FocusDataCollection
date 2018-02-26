@@ -39,14 +39,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import model.ArithmeticTest;
-import model.ArithmeticTraining;
-import model.GenericArithmetic;
+import controllers.ArithmeticTest;
+import controllers.ArithmeticTraining;
+import controllers.GenericArithmetic;
 
 import static constants.Constants.ARITH_TEST_TIMEOUT;
 import static constants.Constants.ARITH_TRAINING_TIMEOUT;
 import static constants.Constants.GUIDED_MEDITATION_TRACK;
 import static constants.Constants.MUSE_STABLE_TIME;
+import static constants.Constants.MUSE_STABLE_TIME_CD_INTERVAL;
 import static constants.Constants.USE_MUSE;
 import static constants.Constants.cd_interval;
 
@@ -69,9 +70,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private final double[] accelBuffer = new double[3];
     private final double[] hsiBuffer = new double[4];
 
-    //    private GenericArithmetic arith_session;
     private GenericArithmetic arith_session;
-//    private ArithmeticTest arithTest;
 
     AlertDialog dialog;
     private Muse muse;
@@ -81,35 +80,29 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private String muse_status;
 
     private boolean is_recording = false;
-    //    private boolean is_arith_test = false;
     private boolean is_muse_stable = false;
     private boolean EEG_data_collection_not_finished = true;
 
     private Context context;
 
     private TextView tv_current_activity_instr;
-    private TextView tv_arith_question;
-    private TextView tv_qn_feedback;
+    //    private TextView tv_arith_question;
+//    private TextView tv_qn_feedback;
     private TextView tv_muse_status;
     private ProgressBar pb_timer;
     private ProgressBar pb_qsn_timeout;
 
     private String name;
-    //    private int answer;
-//    private int num_consecutive_correct = 0;
-//    private List<Long> userTimeTaken;
-//    private long question_start_time;
     private long avg_time_taken;
+    private int muse_disconnected_retry_count;
 
     private CountDownTimer cdt_muse_stable;
-//    private CountDownTimer cdt_qsn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         arith_session = new ArithmeticTraining();
-//        arith_session = new GenericArithmetic();
 
         context = this;
         // Load the Muse Library
@@ -145,7 +138,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         builder.setPositiveButton(R.string.dialog_arith_training_btn_pos, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-//                is_arith_test = false; //Set false
                 // Start Recording Data
                 initFileWriter();
 
@@ -172,37 +164,49 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private Runnable update_hsi_for_dialog = new Runnable() {
         @Override
         public void run() {
-            int a[] = new int[6];
-            boolean muse_good_connection = true;
 
-            for (int i = 0; i < hsiBuffer.length; i++) {
-                a[i] = (int) hsiBuffer[i];
-                if (a[i] != 1) {
-                    muse_good_connection = false;
-                }
-            }
-
-            if (muse_good_connection) {
-                cdt_muse_stable();
-            } else {
-                if (cdt_muse_stable != null) {
-                    cdt_muse_stable.cancel();
-                    cdt_muse_stable = null;
-                }
-            }
-
-
-            String msg = getString(R.string.dialog_arith_training_instruction, a[0], a[1], a[2], a[3]);
+            String msg = getString(R.string.dialog_arith_training_instruction, (int) hsiBuffer[0], (int) hsiBuffer[1], (int) hsiBuffer[2], (int) hsiBuffer[3]);
             dialog.setMessage(msg);
-
 
             if (is_muse_stable) {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-            } else {
+            }
+
+            //Stop when recording started
+            if (!is_recording) {
                 handler.postDelayed(update_hsi_for_dialog, 1000 / 100);
             }
         }
     };
+
+    private void cdt_muse_stable() {
+        cdt_muse_stable = new CountDownTimer(MUSE_STABLE_TIME, MUSE_STABLE_TIME_CD_INTERVAL) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                for (int i = 0; i < hsiBuffer.length; i++) {
+                    if (hsiBuffer[i] != 1) {
+                        restart_muse_stable();
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                is_muse_stable = true;
+            }
+        }.start();
+    }
+
+    private void restart_muse_stable() {
+        Log.d(TAG, "RESTART");
+        if (cdt_muse_stable != null) {
+            cdt_muse_stable.cancel();
+            cdt_muse_stable = null;
+        }
+
+        cdt_muse_stable();
+    }
+
 
     /**
      * Start of Training Session
@@ -253,8 +257,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }.start();
 
             arith_session.generate_questions();
-//            arith_session.getQuestion_start_time();
-
 
         }
     };
@@ -324,13 +326,11 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
             arith_session = new ArithmeticTest();
-//            arith_session = new GenericArithmetic();
             initUI();
             pb_qsn_timeout.setVisibility(View.VISIBLE);
-//            arith_session.setCdt_qsn(cdt_qsn);
+
             arith_session.setPb_qsn_timeout(pb_qsn_timeout);
             arith_session.setAvg_time_taken(avg_time_taken);
-
 
             fileWriter.get().addAnnotationString(0, getString(R.string.anno_arith_test_begin));
             Log.d(TAG, getString(R.string.anno_arith_test_begin));
@@ -338,9 +338,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             tv_current_activity_instr.setText(R.string.tv_activity_test_instr);
 
             arith_session.generate_questions();
-//            arith_session.getQuestion_start_time();
             arith_session.cdt_repeat();
-
 
             int time = ARITH_TEST_TIMEOUT * 1000;
             pb_timer.setMax(time / cd_interval);
@@ -375,7 +373,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
         builder.setPositiveButton(R.string.dialog_arith_complete_btn_pos, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                EEG_data_collection_not_finished = false;
 
                 if (muse != null)
                     muse.disconnect();
@@ -436,30 +433,16 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 //        answer_question(user_input);
     }
 
-    private void cdt_muse_stable() {
-        long time = MUSE_STABLE_TIME * 1000;
-        cdt_muse_stable = new CountDownTimer(time, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                is_muse_stable = true;
-            }
-        }.start();
-    }
 
     private void initUI() {
         setContentView(R.layout.arithmetic_task);
         tv_current_activity_instr = findViewById(R.id.current_activity_instr);
-        tv_arith_question = findViewById(R.id.arith_question);
         tv_muse_status = findViewById(R.id.tv_muse_status);
         pb_timer = findViewById(R.id.pb_task_timer);
-        tv_qn_feedback = findViewById(R.id.tv_qsn_feedback);
         pb_qsn_timeout = findViewById(R.id.pb_qsn_timeout);
 
+//        tv_arith_question = findViewById(R.id.arith_question);
+//        tv_qn_feedback = findViewById(R.id.tv_qsn_feedback);
 //        userTimeTaken = new ArrayList<>();
 
         muse_status = getString(R.string.undefined);
@@ -511,8 +494,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 connect_to_muse();
 
                 start_arithmetic_training_dialog();
-                // Thread to update UI
-//                handler.post(tickUi);
             } else {
                 finish();
             }
@@ -627,42 +608,35 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         });
 
         if (current == ConnectionState.DISCONNECTED) {
+            //TODO Settle for another logic for disconnection!
             Log.i(TAG, "Muse disconnected:" + muse.getName());
 
-            // TODO discard file
             // Save the data file once streaming has stopped.
-//            saveFile();
 
 
             // We have disconnected from the headband, so set our cached copy to null.
 //            this.muse = null;
 
-            if (EEG_data_collection_not_finished) {
-                android.widget.Toast.makeText
-                        (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
-
-                if (muse != null) {
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (muse != null)
-                                connect_to_muse();
-                        }
-                    }, 500);
-                }
-            }
-
-            //            start_record_btn.setEnabled(false);
-//            start_record_btn.setText(R.string.start_rec);
-
-
-        } else if (current == ConnectionState.CONNECTED) {
-//            start_record_btn.setEnabled(true);
-            //todo remove this soon
-//            (dialog).getButton(AlertDialog.BUTTON_POSITIVE)
-//                    .setEnabled(true);
-
+//            if (EEG_data_collection_not_finished) {
+//                android.widget.Toast.makeText
+//                        (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
+//
+//                if (muse != null) {
+//                    final Handler handler = new Handler();
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            if (muse != null)
+//                                connect_to_muse();
+//                        }
+//                    }, 500);
+//                }
+//            }
+//
+//
+//        } else if (current == ConnectionState.CONNECTED) {
+//
+//        }
         }
     }
 
@@ -736,15 +710,9 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     public void onBackPressed() {
 
         // TODO: Prompt dialog to ask if really want to exit
-//        if (is_recording) {
-//            Toast.makeText(context, "Recording in Progress", Toast.LENGTH_SHORT).show();
-//        } else {
-//            // Disconnect Muse when returning to previous activity.
-//            if (muse != null)
-//                muse.disconnect();
-//            muse = null;
-//            finish();
-//        }
+        if (is_recording) {
+            Toast.makeText(context, "Back button is disabled while recording!", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
