@@ -94,6 +94,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private long avg_time_taken;
 
     private CountDownTimer cdt_muse_stable;
+    MediaPlayer mp; //Garbage collector will destroy
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,7 +273,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             tv_muse_status.setText(muse_status);
 
 
-            MediaPlayer mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
+            mp = MediaPlayer.create(context, GUIDED_MEDITATION_TRACK);
+            mp.start();
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -281,12 +283,12 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle(R.string.dialog_guided_meditation_title)
                             .setMessage(R.string.dialog_guided_meditation_msg);
-
                     builder.setPositiveButton(R.string.dialog_guided_meditation_btn_pos, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Start Recording Data
                             setContentView(R.layout.arithmetic_task);
                             handler.post(arith_test_session);
+
                         }
                     });
 
@@ -295,6 +297,8 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                     dialog.setCancelable(false);
                     dialog.setCanceledOnTouchOutside(false);
                     dialog.show();
+                    mp.stop();
+                    mp.release();
 
                 }
             });
@@ -315,7 +319,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
                 }
             }.start();
 
-            mp.start();
+//            mp.start();
         }
     };
 
