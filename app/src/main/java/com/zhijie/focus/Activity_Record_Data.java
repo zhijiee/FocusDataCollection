@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -100,6 +101,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         arith_session = new ArithmeticTraining();
 
         context = this;
@@ -371,6 +373,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     };
 
     private void start_arithmetic_test_completed() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.dialog_arith_complete_title)
