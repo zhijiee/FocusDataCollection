@@ -52,7 +52,7 @@ public class Activity_Connect_Muse extends Activity {
     }
 
     private void initUI() {
-        Button refresh = findViewById(R.id.refresh);
+        Button refresh = findViewById(R.id.btn_start);
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 listviewAdapter.clear();

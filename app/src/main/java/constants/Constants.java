@@ -4,16 +4,17 @@ import com.zhijie.focus.R;
 
 public final class Constants {
 
-//    public static final int ARITH_TRAINING_TIMEOUT = 120;
-//    public static final int GUIDED_MEDITATION_TRACK = R.raw.the_honest_guys_meditation_relaxation;
-//    public static final int ARITH_TEST_TIMEOUT = 180;
+    public static final int ARITH_REAL_TRAINING_TIMEOUT = 120;
+    public static final int GUIDED_REAL_MEDITATION_TRACK = R.raw.the_honest_guys_meditation_relaxation;
+    public static final int ARITH_REAL_TEST_TIMEOUT = 180;
 //    public static final boolean USE_MUSE = true;
 
     // For run through testing purposes
-    public static final int ARITH_TRAINING_TIMEOUT = 30;
-    public static final int GUIDED_MEDITATION_TRACK = R.raw.ting;
-    public static final int ARITH_TEST_TIMEOUT = 30;
-    public static final boolean USE_MUSE = false;
+    public static int ARITH_TRAINING_TIMEOUT = 30;
+    public static int GUIDED_MEDITATION_TRACK = R.raw.ting;
+    public static int ARITH_TEST_TIMEOUT = 30;
+
+    public static boolean USE_MUSE = true;
 
     public static final int cd_interval = 1;
 

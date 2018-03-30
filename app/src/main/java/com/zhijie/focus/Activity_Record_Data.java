@@ -72,6 +72,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     private final double[] hsiBuffer = new double[4];
 
     private GenericArithmetic arith_session;
+    private int connectionRetryCount = 0;
 
     AlertDialog dialog;
     private Muse muse;
@@ -166,7 +167,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         @Override
         public void run() {
 
-            String msg = getString(R.string.dialog_arith_training_instruction, muse_status, (int) hsiBuffer[0], (int) hsiBuffer[1], (int) hsiBuffer[2], (int) hsiBuffer[3]);
+            String msg = getString(R.string.dialog_arith_training_instruction, muse_status, hsi(hsiBuffer[0]), hsi(hsiBuffer[1]), hsi(hsiBuffer[2]), hsi(hsiBuffer[3]));
             dialog.setMessage(msg);
 
             if (is_muse_stable) {
@@ -179,6 +180,21 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             }
         }
     };
+
+    private String hsi(double indicator) {
+        switch ((int) indicator) {
+            case 1:
+                return getString(R.string.hsi_1);
+            case 2:
+                return getString(R.string.hsi_2);
+            case 3:
+            case 4:
+                return getString(R.string.hsi_3);
+            default:
+                return getString(R.string.hsi_3);
+        }
+    }
+
 
     private void cdt_muse_stable() {
         cdt_muse_stable = new CountDownTimer(MUSE_STABLE_TIME, MUSE_STABLE_TIME_CD_INTERVAL) {
@@ -608,7 +624,6 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
         });
 
         if (current == ConnectionState.DISCONNECTED) {
-            //TODO Settle for another logic for disconnection!
             Log.i(TAG, "Muse disconnected:" + muse.getName());
 
             // Save the data file once streaming has stopped.
@@ -617,7 +632,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
             // We have disconnected from the headband, so set our cached copy to null.
 //            this.muse = null;
 
-            if (EEG_data_collection_not_finished) {
+            if (EEG_data_collection_not_finished && connectionRetryCount++ < 5) {
                 android.widget.Toast.makeText
                         (this, "Muse Disconnected! Reconnecting!", Toast.LENGTH_SHORT).show();
 
@@ -635,7 +650,7 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
 
 
         } else if (current == ConnectionState.CONNECTED) {
-
+            connectionRetryCount = 0;
         }
     }
 
@@ -709,8 +724,10 @@ public class Activity_Record_Data extends Activity implements View.OnClickListen
     public void onBackPressed() {
 
         // TODO: Prompt dialog to ask if really want to exit
-        if (is_recording) {
+        if (is_recording && USE_MUSE) {
             Toast.makeText(context, "Back button is disabled while recording!", Toast.LENGTH_SHORT).show();
+        } else {
+//            finish();
         }
 
     }
