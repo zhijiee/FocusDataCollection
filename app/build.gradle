@@ -23,9 +23,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:26.0.0'
-    compile files('libs/libmuse_android.jar')
-    compile files('libs/bsh-core-2.0b4.jar')
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.android.support:support-v4:26.1.0'
+    implementation files('libs/libmuse_android.jar')
+    implementation files('libs/bsh-core-2.0b4.jar')
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+//    compile 'com.google.code.gson:gson:2.6.2'
 }

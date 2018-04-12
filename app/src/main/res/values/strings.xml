@@ -69,7 +69,7 @@
     <string name="dialog_break_btn_positive"> Begin Guided Meditation </string>
 
     <string name="dialog_guided_meditation_title"> Guided Meditation Completed </string>
-    <string name="dialog_guided_meditation_msg">Next: Arithmetic test.\n\nThe nature of this experiment requires the arithmetic test score to be above 75% for the results to be used. </string>
+    <string name="dialog_guided_meditation_msg">Next: Arithmetic test.\n\nThis Project requires the arithmetic test score to be above 80% for the results to be used. </string>
     <string name="dialog_guided_meditation_btn_pos"> Begin Arithmetic Test </string>
 
     <string name="dialog_arith_complete_title"> Complete! </string>
