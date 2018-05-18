@@ -16,9 +16,6 @@ The application is best viewed on Samsung Tab S2 9.7 inch.
 
 ## Software Installed and Tested On
 - Android Studio 3.1.2
-- Windows 10 Version 1803
-
-## Hardware used
 - Samsung Tab S2 9.7 inch
 
 
@@ -35,20 +32,20 @@ implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 Install Android studio from https://developer.android.com/studio/
 
 1. Clone Repository using Android Studio
-![alt text](documentation/setup_guide/1.PNG)
+![](documentation/setup_guide/1.PNG)
 2. Open the project
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/2.PNG)
+![](documentation/setup_guide/2.PNG)
 3. Import Project from Gradle with default settings.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/3.PNG)
+![](documentation/setup_guide/3.PNG)
 4. Let android studio load the project. It will prompt you to install 'android-26'. If not installed click on 'install missing platform and sync project'.   
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/4.PNG)
+![](documentation/setup_guide/4.PNG)
 5. Click on next to install Android SDK Platform 26
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/5.PNG)
+![](documentation/setup_guide/5.PNG)
 
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/6.PNG)
+![](documentation/setup_guide/6.PNG)
 6. Once completed, you are now able to build and run app. Press Shift + F10 to run the application. You may get a prompt asking you to update Gradle Plugin and install instant run. You can choose to install or not, both will work.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/7.PNG)
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/8.PNG)
+![](documentation/setup_guide/7.PNG)
+![](documentation/setup_guide/8.PNG)
 
 # User Guide
 Do read up on the Montreal Imaging Stress Task for a better understanding of how the stress test is conducted. 
@@ -70,7 +67,7 @@ The percentage of correct answers will be displayed at the top right hand corner
 
 ## Diagrams 
 
-![flow chart](./documentation/flowchart.png)
+![flow chart](documentation/flowchart.png)
 
 
 
@@ -89,26 +86,26 @@ Allow the participants to trial on the questions before the data collection.
 ### Explanation for each display
 
 1. Landing page. Ensure that the participant is wearing the Muse headband and the headband is turned on. Tap start when ready.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/1.png)
+![](documentation/walk_through/1.png)
 2. Muse Selector. Select the Muse device the participant is wearing.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/2.png)
+![](documentation/walk_through/2.png)
 3. Wait for the Muse to connect to the device. May take several retries.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/3.png)
+![](documentation/walk_through/3.png)
 4. Adjust the headband until all 4 channels are showing "Excellent". The "Begin Arithmetic Training" button will be unlocked when the Muse Channels are all "Excellent" for 3 seconds.  
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/4.png)
+![](documentation/walk_through/4.png)
 5. The Arithmetic Training will require the participants to answer arithmetic questions. The numbers will be generated from 0-99 and answer will be from 0-9.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/5.png)
+![](documentation/walk_through/5.png)
 6. Once the timer expires, a instructional dialogue will appear. Follow the instructions as written on the dialogue. Take note of the ending phrase.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/6.png)
+![](documentation/walk_through/6.png)
 7. The guided meditation page. The progressbar above shows how long before the guided meditation will end. You may want to increase the timeout of the display otherwise the display may turn off before the guided meditation end. If the participant are not attentive they may not know if the guided meditation has ended.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/7.png)
+![](documentation/walk_through/7.png)
 8. Completing the guided meditation, another instruction dialogue will appear. Remind the participant that the average score is above 75% hence, they would need to get above 75% to be average. This creates additional stress for the participant. Remind the participant to take a short break. Some of them would be slightly sluggish after the meditation.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/8.png)
+![](documentation/walk_through/8.png)
 9. Arithmetic Test page. There is an additional timer under the question for the question timeout. The percentage of correct answers will be displayed once the user has answered a question on the top right hand corner.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/9.png)
+![](documentation/walk_through/9.png)
 10. The following 3 images shows the "correct", "wrong" and "timeout" scenario.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/10.png)
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/11.png)
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/12.png)
+![](documentation/walk_through/10.png)
+![](documentation/walk_through/11.png)
+![](documentation/walk_through/12.png)
 11. Once the timer ends, a dialogue will display to let the user know that the arithmetic test has ended.
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/walk_through/13.png)
+![](documentation/walk_through/13.png)
