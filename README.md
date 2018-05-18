@@ -35,7 +35,7 @@ implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 Install Android studio from https://developer.android.com/studio/
 
 1. Clone Repository using Android Studio
-![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/1.PNG)
+![alt text](documentation/setup_guide/1.PNG)
 2. Open the project
 ![alt text](https://github.com/zhijiee/FocusDataCollection/blob/master/documentation/setup_guide/2.PNG)
 3. Import Project from Gradle with default settings.
@@ -66,7 +66,13 @@ The EEG data captured during this component will be labelled as Mindfulness stat
 3. Arithmetic Test  
 Arithmetic Test is similar to Arithmetic training with the exception that it has a timer underneath the question.  
 The timeout will be set to the average time taken to answer each question during the Arithmetic Training.  
-The percentage of correct answers will be displayed at the top right hand corner once the participant has answered a question.    
+The percentage of correct answers will be displayed at the top right hand corner once the participant has answered a question.   
+
+## Diagrams 
+
+![flow chart](./documentation/flowchart.png)
+
+
 
 ## Data Collection Guide
 
